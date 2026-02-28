@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass-card {
+    @apply bg-premium-slate border border-white/5 backdrop-blur-md shadow-2xl rounded-3xl;
+  }
+  
+  .stat-value {
+    @apply text-3xl font-bold tracking-tight text-white;
+  }
+  
+  .btn-primary {
+    @apply bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-brand-gold transition-all active:scale-95;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-white/[0.02] transition-colors border-b border-white/5;
+  }
+}
+
+/* Custom Scrollbar for that clean UI */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0b; }
+::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }

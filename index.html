@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigitalRevenue | Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</head>
+<body class="bg-premium-black text-premium-accent font-sans antialiased">
+
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-premium-slate border-r border-white/5 flex flex-col z-50">
+        <div class="p-8">
+            <h1 class="text-xl font-800 tracking-tighter text-white italic uppercase">
+                Hilawe <span class="text-brand-gold">Digital</span>
+            </h1>
+            <p class="text-[10px] text-slate-500 tracking-[0.3em] uppercase mt-1">Admin Uplink</p>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="router.navigate('dashboard')" class="nav-item group active">
+                <i class="fa-solid fa-chart-line w-5"></i>
+                <span>Dashboard</span>
+            </button>
+            <button onclick="router.navigate('payments')" class="nav-item group">
+                <i class="fa-solid fa-receipt w-5"></i>
+                <span>Payments</span>
+            </button>
+            <button onclick="router.navigate('products')" class="nav-item group">
+                <i class="fa-solid fa-dumbbell w-5"></i>
+                <span>Products</span>
+            </button>
+        </nav>
+
+        <div class="p-6 border-t border-white/5">
+            <div class="flex items-center gap-3 p-3 glass-card rounded-2xl">
+                <div class="w-8 h-8 rounded-full bg-brand-gold flex items-center justify-center text-black font-bold">A</div>
+                <div class="text-xs">
+                    <p class="text-white font-semibold">Admin</p>
+                    <p class="text-slate-500">System Root</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="ml-64 min-h-screen">
+        <header class="sticky top-0 z-40 bg-premium-black/80 backdrop-blur-xl border-b border-white/5 px-10 py-6 flex justify-between items-center">
+            <h2 id="page-title" class="text-sm font-bold uppercase tracking-widest text-white">Dashboard</h2>
+            <div class="flex gap-4">
+                <button class="p-2 text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-bell"></i></button>
+                <button class="p-2 text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </header>
+
+        <div id="router-outlet" class="p-10 animate-fade-in">
+            </div>
+    </main>
+
+    <script src="src/app.js"></script>
+</body>
+</html>

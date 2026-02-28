@@ -2,25 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .glass-card {
-    @apply bg-premium-slate border border-white/5 backdrop-blur-md shadow-2xl rounded-3xl;
-  }
-  
-  .stat-value {
-    @apply text-3xl font-bold tracking-tight text-white;
-  }
-  
-  .btn-primary {
-    @apply bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-brand-gold transition-all active:scale-95;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-  .table-row-hover {
-    @apply hover:bg-white/[0.02] transition-colors border-b border-white/5;
+@layer base {
+  body {
+    @apply bg-cyber-black text-slate-200 antialiased overflow-x-hidden font-sans;
+    background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 100%);
+    background-attachment: local; 
+    background-size: cover;
   }
 }
 
-/* Custom Scrollbar for that clean UI */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0b; }
-::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+@layer components {
+  /* The "Command Center" Card */
+  .glass-ui {
+    @apply bg-cyber-slate/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+
+  /* Monospace Data Text */
+  .data-text {
+    @apply font-mono uppercase tracking-[0.2em] text-[10px];
+  }
+
+  /* High-Contrast Inputs */
+  .cyber-input {
+    @apply bg-black/40 border border-white/10 rounded-xl px-5 py-4 font-mono text-xs uppercase outline-none focus:border-brand-cyan transition-all placeholder:text-slate-700;
+  }
+
+  /* Neon Glow Effects */
+  .glow-cyan { box-shadow: 0 0 20px rgba(34, 211, 238, 0.15); }
+  .glow-gold { box-shadow: 0 0 25px rgba(212, 175, 55, 0.2); }
+}
+
+@layer utilities {
+  /* Sci-fi Scanline Overlay */
+  .scanline-overlay::before {
+    content: " ";
+    @apply fixed inset-0 pointer-events-none z-[100] opacity-[0.03];
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 100, 0.02));
+    background-size: 100% 4px, 3px 100%;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-brand-cyan/20 rounded-full hover:bg-brand-cyan/50 transition-colors; }
+
+  /* Skeleton Loading State */
+  .skeleton {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.01) 25%, 
+        rgba(255,255,255,0.05) 50%, 
+        rgba(255,255,255,0.01) 75%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+}
+
+/* Sidebar Active State */
+.nav-link.active {
+  @apply bg-brand-cyan/5 border-l-4 border-brand-cyan text-brand-cyan;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+
+#mainChart, #donutChart {
+    position: relative;
+    z-index: 20; /* Sit above the decorative gradients */
+    cursor: crosshair;
+}
+
+/* Ensure the decorative gradient doesn't intercept mouse clicks/hovers */
+.lg\:col-span-2 .absolute.inset-0 {
+    pointer-events: none; 
+}
+
+
+
+

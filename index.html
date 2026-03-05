@@ -170,48 +170,7 @@
         </main>
     </div>
 
-    <div id="mint-modal" class="hidden fixed inset-0 z-[200] bg-cyber-black/95 backdrop-blur-2xl flex items-center justify-center p-6 opacity-0 transition-all duration-500">
-        <div class="glass-ui w-full max-w-xl rounded-[3rem] p-12 relative glow-gold overflow-hidden">
-            <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-[100px]"></div>
 
-            <button onclick="closeMintModal()" class="absolute top-10 right-10 text-slate-500 hover:text-white transition-colors">
-                <i class="fa-solid fa-xmark text-2xl"></i>
-            </button>
-
-            <h3 class="text-3xl font-black italic uppercase tracking-tighter mb-2">Mint Asset</h3>
-            <p class="font-mono text-[10px] text-brand-gold uppercase tracking-[0.4em] mb-10">Deploying to Hilawe Distributed Cloud</p>
-
-            <form id="mint-form" class="space-y-6">
-                <div class="space-y-1">
-                    <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Product Name</label>
-                    <input type="text" name="title" placeholder="ENTER IDENTIFIER" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs uppercase focus:border-brand-gold transition-all outline-none" required>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-1">
-                        <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Market Price ($)</label>
-                        <input type="number" name="price" placeholder="0.00" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs outline-none focus:border-brand-gold transition-all" required>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Language Pack</label>
-                        <select name="language" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs uppercase outline-none appearance-none">
-                            <option value="EN">English (Global)</option>
-                            <option value="AM">Amharic (Local)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="space-y-1">
-                    <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Telegram Storage ID</label>
-                    <input type="text" name="file_id" placeholder="ID_REF_X902..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-[10px] uppercase outline-none focus:border-brand-cyan transition-all" required>
-                </div>
-
-                <button type="submit" class="w-full py-5 bg-brand-gold text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-2xl hover:bg-white hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-gold/10">
-                    Authorize Deployment
-                </button>
-            </form>
-        </div>
-    </div>
 
     <div id="proof-viewer" class="hidden fixed inset-0 z-[210] bg-black/98 backdrop-blur-md flex items-center justify-center p-10 opacity-0 transition-all duration-500">
         <button onclick="closeProof()" class="absolute top-10 right-10 text-white/40 hover:text-white text-3xl"><i class="fa-solid fa-circle-xmark"></i></button>
@@ -219,6 +178,99 @@
             <img id="full-proof-img" src="" class="w-full h-auto">
         </div>
     </div>
+
+
+    <div id="mint-modal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-6">
+    <div class="glass-ui w-full max-w-lg p-12 rounded-[3.5rem] border border-white/10 relative animate-slide-up">
+        <button onclick="document.getElementById('mint-modal').classList.add('hidden')" class="absolute top-8 right-8 text-slate-500 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+        
+        <h3 id="mint-modal-title" class="text-3xl font-black text-white italic tracking-tighter mb-8 uppercase">NEW_DEPLOYMENT</h3>
+        
+        <form id="mint-form" class="space-y-6">
+            <div class="space-y-1">
+                <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Product Name</label>
+                <input type="text" name="title" placeholder="ENTER IDENTIFIER" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs uppercase focus:border-brand-gold transition-all outline-none text-white" required>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Price (Br.)</label>
+                    <input type="number" name="price" placeholder="0.00" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs outline-none focus:border-brand-gold transition-all text-white" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Language</label>
+                    <select name="language" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-xs uppercase outline-none appearance-none text-white">
+                        <option value="EN">EN (Global)</option>
+                        <option value="AM">AM (Local)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-mono text-[9px] text-slate-500 uppercase ml-2">Telegram Storage ID</label>
+                <input type="text" name="file_id" placeholder="ID_REF_X902..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 font-mono text-[10px] uppercase outline-none focus:border-brand-cyan transition-all text-white" required>
+            </div>
+
+            <button type="submit" class="w-full py-5 bg-brand-gold text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-2xl hover:bg-white transition-all shadow-xl shadow-brand-gold/10">
+                Deploy
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="lifecycle-drawer" class="fixed top-0 right-0 h-full w-full md:w-[600px] bg-[#050505]/95 backdrop-blur-2xl z-[110] translate-x-full transition-all duration-700 border-l border-brand-cyan/20 shadow-[-20px_0_50px_rgba(0,0,0,0.9)]">
+    <div class="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-brand-cyan to-transparent opacity-50"></div>
+
+    <div class="p-8 h-full flex flex-col overflow-y-auto custom-scrollbar">
+        <div class="flex justify-between items-start mb-10">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-2 h-2 bg-brand-cyan animate-ping rounded-full"></span>
+                    <p class="font-mono text-[10px] text-brand-cyan uppercase tracking-[0.4em] font-black">Product Detail: Active</p>
+                </div>
+                <h3 id="lifecycle-title" class="text-4xl font-black text-white italic uppercase tracking-tighter leading-none">SYSTEM_RECON</h3>
+                <p id="lifecycle-id" class="font-mono text-[9px] text-slate-500 mt-2">UUID: ---</p>
+            </div>
+            <button onclick="closeLifecycle()" class="group w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-brand-rose/50 transition-all">
+                <i class="fa-solid fa-xmark text-slate-500 group-hover:text-brand-rose group-hover:rotate-90 transition-all"></i>
+            </button>
+        </div>
+
+        <div class="space-y-8">
+            <div id="lifecycle-stats" class="grid grid-cols-3 gap-4">
+                </div>
+
+            <div class="relative glass-ui p-6 rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Performance_History</p>
+                    <span class="text-[8px] font-mono text-brand-cyan bg-brand-cyan/10 px-2 py-1 rounded">Total Revenue</span>
+                </div>
+                <div class="h-[250px] w-full">
+                    <canvas id="lifecycleChart"></canvas>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-[0.3em] pl-2">Product_Specifications</p>
+                <div class="grid grid-cols-1 gap-2">
+                    <div id="spec-matrix" class="space-y-2">
+                        </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-white/5">
+                <div class="grid grid-cols-2 gap-4">
+                 
+                    <button id="delete-btn-trigger" class="flex items-center justify-center gap-3 py-4 bg-transparent border border-brand-rose/30 text-brand-rose font-black font-mono text-[10px] uppercase rounded-2xl hover:bg-brand-rose/10 transition-all">
+                        <i class="fa-solid fa-skull"></i> Inactivate Product
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="src/app.js"></script>
 </body>
 </html>

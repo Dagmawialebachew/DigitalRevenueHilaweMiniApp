@@ -82,5 +82,47 @@
 }
 
 
+.prod-filter.active {
+    border-color: rgba(34, 211, 238, 0.5) !important;
+    color: #22d3ee !important;
+}
+
+
+
+
+.filter-btn {
+    @apply px-5 py-2 rounded-xl font-mono text-[9px] font-black uppercase tracking-[0.15em] 
+    bg-white/5 border border-white/10 text-slate-500 transition-all duration-500 
+    hover:border-brand-cyan/40 hover:text-white;
+}
+
+.filter-btn.active {
+    background: rgba(0, 245, 255, 0.1);
+    border-color: rgba(0, 245, 255, 0.5);
+    color: #00F5FF;
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+#lifecycle-drawer.open {
+    transform: translateX(0);
+}
+
+.glow-gold { box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); }
+.animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.glow-cyan {
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0% { border-color: rgba(34, 211, 238, 0.5); }
+    50% { border-color: rgba(34, 211, 238, 1); }
+    100% { border-color: rgba(34, 211, 238, 0.5); }
+}
+
 
 

@@ -4,7 +4,7 @@
  */
 
 const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
-// const API_BASE = "http://localhost:9090/api/admin";
+// const API_BASE = "http://localhost:8000/api/admin";
 
 let charts = {}; 
 let revenueFilter = 7; // Default filter state
@@ -69,11 +69,139 @@ const router = {
                 case 'dashboard': await this.renderDashboard(); break;
                 case 'payments': await this.renderPayments(); break;
                 case 'products': await this.renderProducts(); break;
+                case 'testimonials': await this.renderTestimonials(); break;
             }
         } catch (err) {
             console.error("Navigation Failure:", err);
             toast("Connection Terminated", "error");
         }
+    },
+async renderTestimonials() {
+    const [testiRes, statsRes] = await Promise.all([
+        fetch(`${API_BASE}/testimonials`),
+        fetch(`${API_BASE}/testimonials/stats`)
+    ]);
+    
+    const testimonials = await testiRes.json();
+    const stats = await statsRes.json();
+    const outlet = document.getElementById('router-outlet');
+
+    let html = `
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-fade-in">
+        ${this.componentKPI("Success Narratives", stats.total_feedback_points, 'brand-cyan', 'fa-comment-medical', 'delay-100')}
+        ${this.componentKPI("Global Sentiment", `${stats.avg_rating} / 5.0`, 'brand-gold', 'fa-award', 'delay-200')}
+        ${this.componentKPI("Army Engagement", stats.participation_rate, 'brand-emerald', 'fa-users-rays', 'delay-300')}
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 animate-slide-up">
+    `;
+
+    testimonials.forEach(user => {
+        const answers = typeof user.answers === 'string' ? JSON.parse(user.answers) : user.answers;
+        
+        // 1. Identify the "Big Story" (The text-based feedback)
+        const storyAnswer = answers.find(a => a.input_type === 'text' && a.question_id === 6);
+        const story = storyAnswer?.text || "Client provided numeric data without a written narrative.";
+
+        html += `
+            <div class="glass-ui p-10 rounded-[3rem] border border-white/5 relative overflow-hidden group hover:border-brand-cyan/30 transition-all duration-500">
+                
+                <div class="flex justify-between items-start mb-8">
+                    <div class="flex items-center gap-5">
+                        <div class="w-16 h-16 rounded-2xl bg-cyber-slate border border-white/10 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-brand-cyan/20 to-transparent"></div>
+                            <span class="text-2xl font-black text-white italic relative z-10">${user.live_name[0]}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-black text-white italic tracking-tighter uppercase mb-1">${user.live_name}</h4>
+                            <p class="font-mono text-[9px] text-brand-cyan bg-brand-cyan/10 px-2 py-0.5 rounded inline-block border border-brand-cyan/20 uppercase">
+                                Verified Node: @${user.username || 'ANON'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex gap-1.5 mb-2 justify-end">${this.generateStars(answers.find(a => a.question_id === 1)?.rating || 0)}</div>
+                        <p class="font-mono text-[8px] text-brand-gold uppercase tracking-[0.2em] font-bold">Client Satisfaction</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-brand-cyan/10 to-transparent border-l-4 border-brand-cyan rounded-r-2xl p-8 mb-8 relative">
+                    <span class="absolute -top-3 left-4 bg-brand-cyan text-black font-mono text-[8px] px-2 py-0.5 rounded font-black uppercase tracking-widest shadow-lg">TRANSFORMATION_LOG</span>
+                    <p class="text-white text-lg font-medium italic leading-relaxed">
+                        "${story}"
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+${answers.filter(a => a.question_id !== 6).map(a => {
+    let displayVal = "";
+    let label = a.question_en.split('?')[0]; 
+
+    // CASE 1: TOGGLE (Yes/No)
+    if (a.input_type === 'toggle') {
+        displayVal = a.rating === 1 
+            ? '<span class="text-brand-emerald font-black">✅ YES</span>' 
+            : '<span class="text-brand-rose font-black">❌ NO</span>';
+    } 
+    // CASE 2: TEXT (The specific "null / 5" fix)
+    else if (a.input_type === 'text') {
+        displayVal = `<span class="text-white italic text-[10px]">"${a.text || 'No Entry'}"</span>`;
+    }
+    // CASE 3: EMOJI (Workout feel)
+    else if (a.input_type === 'emoji') {
+        const emojis = ['💪', '👍', '🔥']; 
+        displayVal = `<span class="text-xl">${emojis[a.rating-1] || '✨'}</span>`;
+    } 
+    // CASE 4: STANDARD RATING
+    else {
+        displayVal = `<span class="text-white font-black">${a.rating || 0}</span><span class="text-slate-600">/5</span>`;
+    }
+
+    return `
+        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col justify-between group/item hover:bg-white/[0.05] transition-colors">
+            <div class="flex items-start justify-between mb-3">
+                <p class="font-mono text-[12px] text-slate-500 uppercase tracking-tighter leading-tight flex-1 pr-2">
+                    Q#${a.question_id}: ${label}
+                </p>
+                <i class="fa-solid ${a.input_type === 'text' ? 'fa-pen-nib' : 'fa-circle-info'} text-[8px] text-white/10 group-hover/item:text-brand-cyan/40 transition-colors"></i>
+            </div>
+            <p class="font-mono text-[11px] uppercase tracking-wider italic">
+                ${displayVal}
+            </p>
+        </div>
+    `;
+}).join('')}
+                </div>
+
+                <div class="flex justify-between items-center pt-6 border-t border-white/5">
+                   <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-fingerprint text-xs text-brand-cyan/30"></i>
+                        <span class="font-mono text-[8px] text-slate-600 uppercase tracking-widest">ID: ${user.telegram_id}</span>
+                   </div>
+                   <div class="flex gap-3">
+                        <button class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-rose/20 hover:border-brand-rose/30 hover:text-brand-rose transition-all">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                        <button class="px-6 py-2 rounded-xl bg-brand-cyan/10 text-brand-cyan text-[10px] font-black uppercase border border-brand-cyan/20 hover:bg-brand-cyan hover:text-black transition-all shadow-lg shadow-brand-cyan/5">
+                            Feature
+                        </button>
+                   </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+    outlet.innerHTML = html;
+},
+
+    generateStars(rating) {
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+            const isActive = i <= rating;
+            stars += `<i class="fa-solid fa-star text-[9px] ${isActive ? 'text-brand-gold glow-gold shadow-[0_0_10px_rgba(255,184,0,0.4)]' : 'text-white/5'}"></i>`;
+        }
+        return stars;
     },
 
     /**
@@ -641,6 +769,9 @@ generateProductCards(products) {
         </div>
     `).join('');
 }
+
+
+
 };
 
 // --- GLOBAL HELPERS ---
@@ -886,6 +1017,10 @@ async function verifyPayment(id, status) {
         }
     } catch (e) { toast("Uplink Interrupted", "error"); }
 }
+
+
+
+
 
 // --- INIT ---
 

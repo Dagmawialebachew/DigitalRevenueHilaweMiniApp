@@ -10,6 +10,10 @@
      <link rel="stylesheet" href="src/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="icon" href="data:,">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
   
 </head>
@@ -41,9 +45,16 @@
                     <span class="font-mono text-[10px] uppercase tracking-[0.3em] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Products</span>
                 </button>
 
+                
+
                 <button data-view="testimonials" class="nav-link w-full flex items-center gap-6 p-4 rounded-xl transition-all hover:bg-white/5 group/item">
     <i class="fa-solid fa-comment-dots w-5 text-center"></i>
     <span class="font-mono text-[10px] uppercase tracking-[0.3em] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Testimonials</span>
+</button>
+
+<button data-view="ledger" class="nav-link w-full flex items-center gap-6 p-4 rounded-xl transition-all hover:bg-white/5 group/item">
+    <i class="fa-solid fa-file-invoice-dollar w-5 text-center text-slate-400 group-hover:text-brand-cyan transition-colors"></i>
+    <span class="font-mono text-[10px] uppercase tracking-[0.3em] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Financials</span>
 </button>
             </nav>
 
@@ -146,6 +157,7 @@
                     </div>
                 </section>
 
+         
                 <section class="glass-ui rounded-[3rem] overflow-hidden">
                     <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                         <h4 class="font-mono text-xs uppercase tracking-[0.4em] font-bold text-brand-gold">Incoming Transaction Stream</h4>

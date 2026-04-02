@@ -3,8 +3,8 @@
  * Ultra High-End Admin Control Logic
  */
 
-const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
-// const API_BASE = "http://localhost:8000/api/admin";
+// const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
+const API_BASE = "http://localhost:8000/api/admin";
 
 let charts = {}; 
 let revenueFilter = 7; // Default filter state
@@ -70,6 +70,7 @@ const router = {
                 case 'payments': await this.renderPayments(); break;
                 case 'products': await this.renderProducts(); break;
                 case 'testimonials': await this.renderTestimonials(); break;
+                case 'ledger': await this.renderLedger(); break; // ADD THIS LINE
             }
         } catch (err) {
             console.error("Navigation Failure:", err);
@@ -203,6 +204,144 @@ ${answers.filter(a => a.question_id !== 6).map(a => {
         }
         return stars;
     },
+async renderLedger() {
+    const outlet = document.getElementById('router-outlet');
+    
+    outlet.innerHTML = `
+    <div class="animate-fade-in space-y-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
+                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Gross_Revenue_Lifetime</p>
+                <h3 id="kpi-gross" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
+            </div>
+            <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
+                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Total_Expenses</p>
+                <h3 id="kpi-burn" class="text-xl font-bold text-brand-rose mt-1">0.00 Br</h3>
+            </div>
+            <div class="glass-ui p-6 rounded-3xl border border-brand-cyan/20 bg-brand-cyan/[0.02]">
+                <p class="font-mono text-[9px] text-brand-cyan uppercase tracking-widest">Profit_Efficiency</p>
+                <h3 id="kpi-efficiency" class="text-xl font-bold text-white mt-1">0%</h3>
+            </div>
+             <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
+                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Net_Profit_To_Date</p>
+                <h3 id="cumulative-profit-display" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter text-white uppercase italic">Financial_Command</h1>
+                    <p id="display-tier" class="font-mono text-[10px] text-brand-cyan tracking-[0.3em] uppercase mt-2">Initializing_Financial_Core...</p>
+                </div>
+            </div>
+
+            <div class="px-2">
+                <div class="flex justify-between items-center mb-3">
+                    <p id="tier-label" class="font-mono text-[10px] text-slate-400 uppercase tracking-widest">Tier_Progress</p>
+                    <p id="tier-percent" class="font-mono text-[10px] text-brand-cyan">0%</p>
+                </div>
+                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div id="tier-progress-bar" class="h-full bg-brand-cyan shadow-[0_0_15px_#06b6d4] transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 glass-ui p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+                
+                <div class="flex p-1 bg-black/40 rounded-2xl border border-white/5">
+                    <button id="mode-payout" class="flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-cyan text-slate-950 uppercase">Payout_Mode</button>
+                    <button id="mode-expense" class="flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase">Expense_Only</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div id="revenue-container">
+                        <label class="block font-mono text-[9px] text-slate-400 uppercase pl-2 mb-2">Pending_Revenue</label>
+                        <input type="number" id="payout-revenue" readonly class="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-6 py-4 font-mono text-white outline-none cursor-not-allowed">
+                    </div>
+                    
+                    <div>
+                        <label id="expense-label" class="block font-mono text-[9px] text-slate-400 uppercase pl-2 mb-2">Expense_Deductions</label>
+                        <input type="number" id="payout-deductions" placeholder="0.00" class="w-full bg-slate-950/50 border border-brand-cyan/20 rounded-2xl px-6 py-4 font-mono text-white focus:border-brand-cyan outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[9px] text-slate-400 uppercase pl-2 mb-2">Memo / Expense_Note</label>
+                        <textarea id="payout-note" placeholder="Required for expense tracking..." class="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-6 py-4 font-mono text-[11px] text-white focus:border-brand-cyan outline-none h-24 resize-none transition-all"></textarea>
+                    </div>
+                </div>
+
+                <button id="confirm-payout-btn" class="group relative w-full py-5 bg-brand-cyan text-slate-950 font-black font-mono text-[11px] uppercase rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all overflow-hidden">
+                    <span class="relative z-10">Execute_Financial_Log</span>
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                </button>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div id="share-display-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500">
+                    <div class="glass-ui p-8 rounded-[2.5rem] border border-brand-cyan/10 bg-gradient-to-br from-brand-cyan/[0.03] to-transparent flex flex-col justify-between">
+                        <p class="font-mono text-[10px] text-brand-cyan uppercase tracking-widest mb-4">Coach_Hilawe_Share</p>
+                        <h2 id="display-coach-share" class="text-5xl font-black text-white tracking-tighter">0.00 Br</h2>
+                    </div>
+                    <div class="glass-ui p-8 rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent flex flex-col justify-between">
+                        <p class="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-4">Dagmawi_Share</p>
+                        <h2 id="display-dag-share" class="text-5xl font-black text-white tracking-tighter">0.00 Br</h2>
+                    </div>
+                </div>
+
+                <div class="glass-ui p-8 rounded-[2.5rem] border border-white/5 bg-white/[0.01]">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Growth_Velocity</p>
+                            <h4 class="text-white font-bold text-sm uppercase italic mt-1">Profit_Trend_Monitor</h4>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1 bg-brand-cyan/10 border border-brand-cyan/20 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan animate-pulse"></span>
+                            <span class="font-mono text-[8px] text-brand-cyan uppercase">Live_Analytics</span>
+                        </div>
+                    </div>
+                    <div class="h-44 w-full">
+                        <canvas id="profitTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-ui rounded-[3rem] overflow-hidden border border-white/5">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <h4 class="font-mono text-xs uppercase tracking-[0.4em] font-bold text-slate-400">Payout_Archive</h4>
+                <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 font-mono text-[9px] text-brand-cyan italic uppercase">
+                    Ledger_Sync: Secure
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-white/[0.03] font-mono text-[9px] uppercase tracking-widest text-slate-500">
+                        <tr>
+                            <th class="p-6">Date</th>
+                            <th class="p-6">Type</th>
+                            <th class="p-6">Gross Rev</th>
+                            <th class="p-6">Expenses</th>
+                            <th class="p-6 text-white">Net Profit</th>
+                            <th class="p-6 text-brand-cyan">Coach Share</th>
+                            <th class="p-6">Dag Share</th>
+                            <th class="p-6">Tier</th>
+                            <th class="p-6 text-right">Statement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payout-history-body" class="divide-y divide-white/5 font-mono text-[11px] text-slate-300">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    `;
+
+    await loadLedgerData();
+},
+   
 
     /**
  * HILAWE | SOVEREIGN COMMAND V4 - HYPER-UI EDITION
@@ -959,6 +1098,337 @@ function renderSpecRow(label, value, icon) {
     `;
 }
 
+/**
+ * REVENUE COMMAND CENTER - LEDGER & ANALYTICS
+ */
+async function loadLedgerData() {
+    try {
+        const [statsRes, historyRes] = await Promise.all([
+            fetch(`${API_BASE}/payouts/pending`),
+            fetch(`${API_BASE}/payouts/history`)
+        ]);
+
+        const data = await statsRes.json();
+        const history = await historyRes.json();
+        
+        // UI Elements Mapping
+        const revInput = document.getElementById('payout-revenue'); 
+        const dedInput = document.getElementById('payout-deductions'); 
+        const noteInput = document.getElementById('payout-note');
+        const cumDisplay = document.getElementById('cumulative-profit-display'); 
+        const tierDisplay = document.getElementById('display-tier');
+        const historyBody = document.getElementById('payout-history-body');
+        const confirmBtn = document.getElementById('confirm-payout-btn');
+
+        // KPI Elements
+        const kpiGross = document.getElementById('kpi-gross');
+        const kpiBurn = document.getElementById('kpi-burn');
+        const kpiEff = document.getElementById('kpi-efficiency');
+        const progBar = document.getElementById('tier-progress-bar');
+        const progLabel = document.getElementById('tier-label');
+        const progPercent = document.getElementById('tier-percent');
+
+        let currentMode = 'payout'; 
+
+        // --- 1. INITIAL DATA INJECTION (NET-FIRST LOGIC) ---
+        // CRITICAL CHANGE: We set the input to Cumulative Profit, not Pending Revenue.
+        // This ensures you are splitting what is ACTUALLY in the chest.
+        revInput.value = data.cumulative_profit.toFixed(2);
+        
+        cumDisplay.innerText = `${data.cumulative_profit.toLocaleString()} Br`;
+        
+        // Lifetime KPIs
+        kpiGross.innerText = `${data.lifetime_gross.toLocaleString()} Br`;
+        kpiBurn.innerText = `${data.lifetime_burn.toLocaleString()} Br`;
+        kpiEff.innerText = `${data.efficiency}%`; 
+
+        // Tier Progress
+        progBar.style.width = `${data.tier_progress}%`;
+        progPercent.innerText = `${data.tier_progress}%`;
+        progLabel.innerText = data.current_tier === 1 ? "Progress_to_Tier_2" : "Tier_2_Active_Limitless";
+
+        if (data.trend_labels && data.trend_data) {
+            initTrendChart(data.trend_labels, data.trend_data);
+        }
+
+        // --- 2. THE CALCULATION ENGINE ---
+        const updateCalculations = () => {
+            const availableNet = parseFloat(revInput.value) || 0; 
+            const currentExp = parseFloat(dedInput.value) || 0;
+            const tier = data.current_tier;
+
+            const coachRatio = tier === 1 ? 0.6 : 0.7;
+            const dagRatio = tier === 1 ? 0.4 : 0.3;
+
+            const coachShareEl = document.getElementById('display-coach-share');
+            const dagShareEl = document.getElementById('display-dag-share');
+            const shareGrid = document.getElementById('share-display-grid');
+            const revenueContainer = document.getElementById('payout-revenue-container');
+
+            if (currentMode === 'expense_only') {
+                coachShareEl.innerText = "0.00 Br";
+                dagShareEl.innerText = "0.00 Br";
+                shareGrid.style.opacity = "0.1"; 
+                revenueContainer?.classList.add('opacity-30');
+                
+                tierDisplay.innerText = "MODE // STANDALONE_EXPENSE_LOG";
+                confirmBtn.innerText = "Log_Expense_Only";
+                confirmBtn.classList.replace('bg-brand-cyan', 'bg-brand-rose');
+            } else {
+                // Distribute whatever is in the field minus current new deductions
+                const distributable = Math.max(0, availableNet - currentExp);
+                
+                const coachAmount = (distributable * coachRatio).toFixed(2);
+                const dagAmount = (distributable * dagRatio).toFixed(2);
+
+                coachShareEl.innerText = `${parseFloat(coachAmount).toLocaleString()} Br`;
+                dagShareEl.innerText = `${parseFloat(dagAmount).toLocaleString()} Br`;
+
+                shareGrid.style.opacity = "1";
+                revenueContainer?.classList.remove('opacity-30');
+                
+                tierDisplay.innerText = `ACTIVE // TIER_${tier} (${(coachRatio * 100).toFixed(0)}/${(dagRatio * 100).toFixed(0)}_SPLIT)`;
+                confirmBtn.innerText = "Complete_Payout_&_Save";
+                confirmBtn.classList.replace('bg-brand-rose', 'bg-brand-cyan');
+            }
+        };
+
+        // --- 3. MODE TOGGLE LOGIC ---
+        const btnPayoutMode = document.getElementById('mode-payout');
+        const btnExpenseMode = document.getElementById('mode-expense');
+
+        btnPayoutMode.onclick = () => {
+            currentMode = 'payout';
+            btnPayoutMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-cyan text-slate-950 uppercase";
+            btnExpenseMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
+            revInput.disabled = false;
+            updateCalculations();
+        };
+
+        btnExpenseMode.onclick = () => {
+            currentMode = 'expense_only';
+            btnExpenseMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-rose text-white uppercase";
+            btnPayoutMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
+            revInput.disabled = true;
+            updateCalculations();
+        };
+
+        dedInput.addEventListener('input', updateCalculations);
+        revInput.addEventListener('input', updateCalculations);
+        updateCalculations();
+
+        // --- 4. RENDER HISTORY ---
+        renderHistory(history, historyBody);
+
+        // --- 5. EXECUTION HANDLER ---
+        confirmBtn.onclick = async () => {
+            const amount = currentMode === 'payout' ? parseFloat(revInput.value) : parseFloat(dedInput.value);
+            const deductions = currentMode === 'payout' ? parseFloat(dedInput.value) : 0;
+            const note = noteInput.value.trim();
+
+            if (amount <= 0 && currentMode === 'payout') return toast("ENTER FUNDS TO SPLIT", "error");
+            if (amount <= 0 && currentMode === 'expense_only') return toast("ENTER EXPENSE AMOUNT", "error");
+            if (!note) return toast("MEMO REQUIRED", "error");
+
+            const confirmMsg = currentMode === 'payout' 
+                ? "Authorize Payout? This splits profit and reduces the War Chest."
+                : "Log Standalone Expense? This hits the War Chest without share split.";
+            
+            if(!confirm(confirmMsg)) return;
+            
+            confirmBtn.disabled = true;
+            confirmBtn.innerText = "SYNCING...";
+
+            try {
+                const response = await fetch(`${API_BASE}/payouts/confirm`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        amount,      
+                        deductions,  
+                        note,
+                        entry_type: currentMode
+                    })
+                });
+
+                if(response.ok) {
+                    toast(currentMode === 'payout' ? "FINANCIAL_SYNC_COMPLETE" : "EXPENSE_ARCHIVED");
+                    dedInput.value = "";
+                    noteInput.value = "";
+                    await loadLedgerData(); 
+                } else {
+                    toast("LOGIC_GATE_REJECTED", "error");
+                }
+            } catch (err) {
+                toast("NETWORK_SYNC_FAILURE", "error");
+            } finally {
+                confirmBtn.disabled = false;
+            }
+        };
+
+    } catch (e) { 
+        console.error("🛑 SYNC ERROR:", e);
+        toast("FINANCIAL_OFFLINE", "error"); 
+    }
+}
+/**
+ * CHART ENGINE - Visualizes Profit Growth
+ */
+
+/**
+ * Renders the financial history table with high-end glassmorphism styling
+ */
+function renderHistory(history, container) {
+    if (!history || history.length === 0) {
+        container.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-slate-600 italic uppercase font-mono text-[10px] tracking-widest">No_Historical_Records_Found</td></tr>`;
+        return;
+    }
+
+    container.innerHTML = history.map(log => {
+        const isExpense = log.entry_type === 'expense_only';
+        
+        // Define the Visual Theme for the row
+        const rowOpacity = isExpense ? 'opacity-60' : 'opacity-100';
+        const typeBadge = isExpense 
+            ? 'bg-brand-rose/10 text-brand-rose border-brand-rose/20' 
+            : 'bg-brand-cyan/10 text-brand-cyan border-brand-cyan/20';
+        
+        // Format values to avoid double negatives in UI
+        const gross = parseFloat(log.gross_revenue);
+        const burn = Math.abs(parseFloat(log.operational_deductions));
+        const net = parseFloat(log.net_profit);
+        const coach = parseFloat(log.coach_share);
+        const dag = parseFloat(log.dagmawi_share);
+
+        return `
+        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 ${rowOpacity}">
+            <td class="p-6 text-slate-500 font-mono text-[10px]">${new Date(log.payout_date).toLocaleDateString()}</td>
+            
+            <td class="p-6">
+                <span class="px-2 py-0.5 rounded-[4px] text-[8px] font-black border uppercase tracking-tighter ${typeBadge}">
+                    ${log.entry_type.replace('_', ' ')}
+                </span>
+            </td>
+            
+            <td class="p-6 font-mono text-[11px] ${isExpense ? 'text-slate-700' : 'text-white'}">
+                ${isExpense ? '---' : `${gross.toLocaleString()} Br`}
+            </td>
+            
+            <td class="p-6">
+                <div class="font-mono text-[11px] ${isExpense ? 'text-brand-rose font-bold' : 'text-slate-500'}">
+                    -${burn.toLocaleString()} Br
+                </div>
+                ${log.expense_note ? `<div class="text-[9px] text-slate-400 lowercase mt-1 italic tracking-tight font-light">"${log.expense_note}"</div>` : ''}
+            </td>
+            
+            <td class="p-6 font-black font-mono text-[11px] ${net < 0 ? 'text-brand-rose' : 'text-white'}">
+                ${net < 0 ? '-' : '+'}${Math.abs(net).toLocaleString()} Br
+            </td>
+            
+            <td class="p-6 text-[10px] font-mono ${isExpense ? 'text-slate-800' : 'text-brand-cyan font-bold'}">
+                ${isExpense ? '0.00' : `${coach.toLocaleString()} Br`}
+            </td>
+            <td class="p-6 text-[10px] font-mono ${isExpense ? 'text-slate-800' : 'text-slate-400'}">
+                ${isExpense ? '0.00' : `${dag.toLocaleString()} Br`}
+            </td>
+            
+            <td class="p-6 text-center">
+                <span class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-slate-500">
+                    T${log.tier_applied}
+                </span>
+            </td>
+            
+            <td class="p-6 text-right">
+                <button onclick='generatePayoutPDF(${JSON.stringify(log)})' 
+                        class="p-2 hover:bg-white/10 rounded-lg text-slate-600 hover:text-white transition-all">
+                    <i class="fa-solid fa-file-invoice-dollar text-[12px]"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function initTrendChart(labels, dataPoints) {
+    const ctx = document.getElementById('profitTrendChart').getContext('2d');
+    if (window.trendChartInstance) window.trendChartInstance.destroy();
+
+    window.trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Net Profit',
+                data: dataPoints,
+                borderColor: '#06b6d4',
+                backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                borderWidth: 3,
+                pointBackgroundColor: '#06b6d4',
+                pointRadius: 4,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9, family: 'monospace' } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 9, family: 'monospace' } } }
+            }
+        }
+    });
+}
+
+/**
+ * PDF ENGINE - Generates Official Statements
+ */
+async function generatePayoutPDF(log) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Header Style
+    doc.setFillColor(15, 23, 42); 
+    doc.rect(0, 0, 210, 50, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(24);
+    doc.text("HILAWE_REVENUE", 15, 30);
+    doc.setFontSize(10); doc.setFont("courier", "normal");
+    doc.text(`CERTIFIED_STATEMENT: #LGR-${log.id}-${Math.random().toString(36).substr(2,4).toUpperCase()}`, 15, 40);
+
+    // Distribution Table
+    doc.autoTable({
+        startY: 60,
+        head: [['PARAMETER', 'VALUE']],
+        body: [
+            ['Transaction Date', new Date(log.payout_date).toLocaleDateString()],
+            ['Gross Revenue', `${parseFloat(log.gross_revenue).toLocaleString()} Br`],
+            ['Deductions', `${parseFloat(log.operational_deductions).toLocaleString()} Br`],
+            ['Net Profit', `${parseFloat(log.net_profit).toLocaleString()} Br`],
+            ['Tier Applied', `Tier ${log.tier_applied}`],
+            ['Coach Share', `${parseFloat(log.coach_share).toLocaleString()} Br`],
+            ['Dagmawi Share', `${parseFloat(log.dagmawi_share).toLocaleString()} Br`],
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [6, 182, 212], textColor: 255 },
+        styles: { font: 'courier', fontSize: 10 }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 15;
+    // Add to generatePayoutPDF
+    doc.setDrawColor(6, 182, 212);
+    doc.setLineWidth(0.5);
+    doc.rect(5, 5, 200, 287); // Border
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "bold"); doc.text("OFFICIAL_AUDIT_NOTE:", 15, finalY);
+    doc.setFont("helvetica", "italic"); doc.setFontSize(9);
+    doc.text(log.expense_note || "No specific operational deductions recorded.", 15, finalY + 8);
+
+    doc.save(`Payout_Statement_${log.payout_date.split('T')[0]}.pdf`);
+}
+
+
 function renderLifecycleChart(labels, values) {
     if (productLifecycleInstance instanceof Chart) productLifecycleInstance.destroy();
     
@@ -1020,6 +1490,10 @@ async function verifyPayment(id, status) {
 
 
 
+// Ensure your router handles the 'ledger' view
+
+
+
 
 
 // --- INIT ---
@@ -1031,9 +1505,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedView = window.location.hash.replace('#', '');
     
     // 2. If valid view exists in URL, go there; otherwise default to dashboard
-    const initialView = ['dashboard', 'payments', 'products'].includes(savedView) 
-        ? savedView 
-        : 'dashboard';
+    const initialView = ['dashboard', 'payments', 'products', 'testimonials', 'ledger'].includes(savedView) 
+    ? savedView 
+    : 'dashboard';
 
     router.navigate(initialView);
 });

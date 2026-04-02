@@ -3,8 +3,8 @@
  * Ultra High-End Admin Control Logic
  */
 
-// const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
-const API_BASE = "http://localhost:8000/api/admin";
+const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
+// const API_BASE = "http://localhost:8000/api/admin";
 
 let charts = {}; 
 let revenueFilter = 7; // Default filter state

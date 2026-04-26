@@ -412,49 +412,71 @@ async renderDashboard() {
         ${this.componentKPI("Conv. Rate", `${stats.conversion_rate || 0}%`, 'brand-emerald', 'fa-bolt-lightning', 'delay-400')}
     </section>
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 glass-ui p-10 rounded-[3.5rem] relative group border border-white/5 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-brand-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
-            <div class="flex justify-between items-end mb-12 relative z-10">
-                <div>
-                    <h4 class="font-mono text-[10px] uppercase tracking-[0.5em] font-black text-brand-cyan/60 mb-2">Market Volatility Index</h4>
-                    <h2 class="text-3xl font-black italic text-white tracking-tighter uppercase">Financial_Pulse</h2>
-                </div>
-                <div class="flex gap-1.5 bg-black/60 p-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
-                    ${[7, 14, 30].map(d => `
-                        <button onclick="updateRevenueFilter(${d})" class="px-5 py-2 rounded-xl font-mono text-[10px] transition-all ${revenueFilter === d ? 'bg-brand-cyan text-black font-black shadow-[0_0_20px_rgba(34,211,238,0.4)]' : 'text-slate-500 hover:text-white'}">${d}D</button>
+   <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 bg-[#030712]">
+    <div class="lg:col-span-8 bg-white/[0.03] backdrop-blur-2xl p-8 rounded-[2rem] border border-white/10 relative group overflow-hidden shadow-2xl">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full group-hover:bg-cyan-500/20 transition-all duration-700"></div>
+        
+        <div class="flex justify-between items-start mb-10 relative z-10">
+            <div>
+                <p class="text-[10px] tracking-[0.3em] font-bold text-cyan-400/50 uppercase mb-1">Market Velocity</p>
+                <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Revenue & Reach</h2>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="generatePremiumPDF()" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 px-4 py-2 rounded-lg transition-all active:scale-95">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400 text-[10px]"></i>
+                    <span class="font-mono text-[9px] font-bold text-white uppercase">Export</span>
+                </button>
+
+                <div class="flex bg-black/40 p-1 rounded-xl border border-white/5">
+                    ${[7, 14, 30, 60, 90].map(d => `
+                        <button onclick="updateRevenueFilter(${d})" 
+                            class="px-4 py-1.5 rounded-lg font-mono text-[10px] transition-all 
+                            ${revenueFilter === d ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/20' : 'text-slate-400 hover:text-white'}">
+                            ${d}D
+                        </button>
                     `).join('')}
                 </div>
             </div>
-            <div class="h-[380px] w-full relative z-10"><canvas id="mainChart"></canvas></div>
         </div>
 
-        <div class="flex flex-col gap-8">
-            <div class="glass-ui p-10 rounded-[3.5rem] border border-white/5 h-[340px] flex flex-col justify-between relative overflow-hidden group">
-                 <div class="absolute inset-0 bg-gradient-to-t from-brand-rose/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                 <h4 class="font-mono text-[10px] uppercase tracking-[0.4em] font-black text-slate-500">Asset Distribution</h4>
-                 <div class="h-[200px] relative mt-4">
-                    <canvas id="donutChart"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none translate-y-[-10px]">
-                        <span class="text-slate-500 font-mono text-[8px] uppercase tracking-tighter">Total Signals</span>
-                        <span class="text-2xl font-black text-white italic">${totalSignals}</span>
-                    </div>
-                 </div>
+        <div class="h-[380px] w-full relative z-10">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    <div class="lg:col-span-4 flex flex-col gap-6">
+        <div class="bg-white/[0.03] backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 flex-grow relative overflow-hidden group">
+            <div class="flex justify-between items-center mb-6">
+                <p class="text-[10px] tracking-widest font-bold text-slate-500 uppercase">Asset_Mix</p>
+                <span class="bg-rose-500/10 text-rose-400 text-[9px] px-2 py-0.5 rounded-full border border-rose-500/20">Live</span>
             </div>
 
-            <div class="glass-ui p-8 rounded-[3.5rem] border border-white/5 flex-grow">
-                <h4 class="font-mono text-[10px] uppercase tracking-[0.4em] font-black text-slate-500 mb-6">Top_3 Selling Products</h4>
-                <div class="space-y-4">
-                    ${topSellers.slice(0, 3).map((p, i) => `
-                        <div class="flex items-center justify-between group cursor-pointer" onclick="showLifecycle('${p.product_id}')g">
-                            <p class="text-[10px] font-black text-white uppercase group-hover:text-brand-cyan transition-colors">${p.title}</p>
-                            <p class="font-mono text-[9px] font-black text-brand-emerald">${Number(p.total_revenue).toLocaleString()} Br.</p>
+            <div class="h-[200px] relative">
+                <canvas id="donutChart"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span class="text-slate-500 font-mono text-[9px] uppercase">Signals</span>
+                    <span class="text-3xl font-black text-white italic tracking-tighter">${totalSignals}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/[0.03] backdrop-blur-xl p-8 rounded-[2rem] border border-white/10">
+            <p class="text-[10px] tracking-widest font-bold text-slate-500 uppercase mb-6">Top_Performers</p>
+            <div class="space-y-3">
+                ${topSellers.slice(0, 3).map((p, i) => `
+                    <div class="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 transition-all cursor-pointer group" onclick="showLifecycle('${p.product_id}')">
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-600 font-mono text-[9px]">0${i+1}</span>
+                            <p class="text-[11px] font-bold text-white/80 group-hover:text-cyan-400 uppercase transition-colors">${p.title}</p>
                         </div>
-                    `).join('')}
-                </div>
+                        <p class="font-mono text-[10px] font-black text-emerald-400">${Number(p.total_revenue).toLocaleString()} <span class="text-[8px] opacity-50">ETB</span></p>
+                    </div>
+                `).join('')}
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
         <div class="lg:col-span-1 glass-ui p-10 rounded-[3.5rem] border border-white/5 flex flex-col relative overflow-hidden group">
@@ -530,88 +552,38 @@ componentKPI(label, value, color, icon, delay) {
     `;
 },
 
-initCharts(revData, demoData) {
-    
-    const distData = demoData.status || {};    
+initCharts(data, demoData) {
     const canvasMain = document.getElementById('mainChart');
+    if (!canvasMain) return;
+
+    // Define the elements first
+    const canvasDonut = document.getElementById('donutChart');
     const canvasDemo = document.getElementById('demoChart');
-    if (!canvasMain || !canvasDemo) {
-        console.warn("LIFECYCLE_SYNC_DELAY: Retrying chart render...");
-        return;
-    }
-    const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-    const labels = revData.map(r => {
-        const d = r.date.includes('/') ? new Date(`${new Date().getFullYear()}/${r.date}`) : new Date(r.date);
-        return dayNames[d.getDay()];
-    });
-    const values = revData.map(r => Number(r.value || 0));
 
-    const ctxLine = document.getElementById('mainChart').getContext('2d');
-    const ctxDonut = document.getElementById('donutChart').getContext('2d');
+    // Safety check: if any are missing, stop
+    if (!canvasMain || !canvasDonut || !canvasDemo) return;
 
-    // --- ULTRA GRADIENT ENGINE ---
-    const areaFill = ctxLine.createLinearGradient(0, 0, 0, 400);
-    areaFill.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
-    areaFill.addColorStop(0.5, 'rgba(34, 211, 238, 0.05)');
-    areaFill.addColorStop(1, 'rgba(34, 211, 238, 0)');
+    // Now define the contexts
+    const ctxLine = canvasMain.getContext('2d');
+    const ctxDonut = canvasDonut.getContext('2d');
+    const ctxDemo = canvasDemo.getContext('2d');
 
-    const lineStroke = ctxLine.createLinearGradient(0, 0, 1000, 0);
-    lineStroke.addColorStop(0, '#06b6d4');
-    lineStroke.addColorStop(0.5, '#22d3ee');
-    lineStroke.addColorStop(1, '#34d399'); // Subtle transition to emerald at the end
+    // Define distData (which was missing in your snippet)
+    const distData = demoData.status || {};
+    // --- GRADIENT ENGINES ---
+    const revFill = ctxLine.createLinearGradient(0, 0, 0, 400);
+    revFill.addColorStop(0, 'rgba(34, 211, 238, 0.2)');
+    revFill.addColorStop(1, 'rgba(34, 211, 238, 0)');
+
+    const userFill = ctxLine.createLinearGradient(0, 0, 0, 400);
+    userFill.addColorStop(0, 'rgba(16, 185, 129, 0.1)');
+    userFill.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
     this.cleanupCharts();
     window.charts = window.charts || {};
 
-    // --- THE MAIN PULSE (LINE CHART) ---
-    window.charts.main = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [{
-                data: values,
-                borderColor: lineStroke,
-                borderWidth: 5,
-                 label: 'PROFIT',
-          data: values,
-          borderColor: lineStroke, // Emerald Green
-          fill: true,
-          tension: 0.4,
-          borderWidth: 3,
-          pointRadius: 4,
-            pointBackgroundColor: '#fff'
-
-            }]
-
-         
-        },
-        options: {
-    ...this.getChartOptions(),
+   window.charts.main = createPremiumMainChart(ctxLine, data, { externalTooltip: 'tooltip-container', onPointClick: payload => console.log(payload) });
    
-    hover: {
-        mode: 'index',
-        intersect: false
-    },
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            enabled: true,
-            position: 'nearest',
-            backgroundColor: 'rgba(7, 16, 36, 0.95)', // Deep space navy
-            titleFont: { family: 'JetBrains Mono', size: 12, weight: '800' },
-            bodyFont: { family: 'JetBrains Mono', size: 14 },
-            padding: 15,
-            borderColor: 'rgba(34, 211, 238, 0.3)',
-            borderWidth: 1,
-            displayColors: false,
-            // Add a slight delay for that premium feel
-            animation: {
-                duration: 150
-            }
-        }
-    }
-}
-    });
 
     // --- THE CORE (DONUT CHART) ---
     window.charts.donut = new Chart(ctxDonut, {
@@ -640,7 +612,6 @@ initCharts(revData, demoData) {
         }
     });
 
-    const ctxDemo = document.getElementById('demoChart').getContext('2d');
     
     window.updateDemoChart = (type) => {
     if (window.charts.demo) window.charts.demo.destroy();
@@ -717,6 +688,23 @@ initCharts(revData, demoData) {
 
     // Initialize with 'level'
     updateDemoChart('level');
+    // expose the current chart data globally so inline onclick can use it
+window.currentRevenueData = {
+  labels: Array.isArray(data.labels) ? data.labels : [],
+  revenue: Array.isArray(data.revenue) ? data.revenue : new Array(data.labels?.length || 1).fill(0),
+  users: Array.isArray(data.users) ? data.users : new Array(data.labels?.length || 1).fill(0),
+  days_limit: data.days_limit || (Array.isArray(data.labels) ? data.labels.length : 0)
+};
+
+// optional debug snapshot for quick console checks
+window.currentRevenueSnapshot = {
+  totalRev: (window.currentRevenueData.revenue || []).reduce((a,b) => a + (Number(b)||0), 0),
+  totalUsers: (window.currentRevenueData.users || []).reduce((a,b) => a + (Number(b)||0), 0),
+  arpu: (window.currentRevenueData.users || []).reduce((a,b)=>a+(Number(b)||0),0) > 0
+        ? ((window.currentRevenueData.revenue || []).reduce((a,b)=>a+(Number(b)||0),0) / (window.currentRevenueData.users || []).reduce((a,b)=>a+(Number(b)||0),0))
+        : 0
+};
+
 },
 
 getChartOptions() {
@@ -915,9 +903,27 @@ generateProductCards(products) {
 
 // --- GLOBAL HELPERS ---
 
-window.updateRevenueFilter = (days) => {
+window.updateRevenueFilter = async (days) => {
+    // 1. Update the local state
     revenueFilter = days;
-    router.renderDashboard();
+
+    try {
+        // 2. Fetch the new dual-stream data (Revenue + Users)
+        const res = await fetch(`${API_BASE}/stats/revenue?days=${days}`);
+        const data = await res.json();
+        
+        // 3. Store data globally so generatePremiumPDF() can access it later
+        window.currentRevenueData = data; 
+        
+        /** * 4. Update the UI. 
+         * We call renderDashboard but pass the fresh data 
+         * to avoid a second redundant fetch inside the render function.
+         */
+        router.renderDashboard(data);
+
+    } catch (error) {
+        console.error("CRITICAL_SYNC_ERROR: Could not update revenue filter.", error);
+    }
 };
 
 
@@ -1526,3 +1532,564 @@ document.querySelectorAll('.nav-link').forEach(link => {
         router.navigate(link.getAttribute('data-view'));
     });
 });
+
+
+
+
+
+/**
+ * Data‑Dense Technical Report PDF exporter
+ * - Inline-friendly: call with no args (reads window.currentRevenueData and window.logoDataUrl)
+ * - Defensive normalization and clear user feedback
+ * - Uses Chart.js instance image when available (window.charts.main.toBase64Image())
+ * - Avoids invalid jsPDF color/alpha calls; uses GState for opacity when supported
+ * - Returns { doc, blob, filename } and auto-downloads by default
+ */
+async function generatePremiumPDF({ data = null, onProgress = () => {}, autoDownload = true } = {}) {
+  const progress = pct => {
+    try { onProgress(Math.max(0, Math.min(100, Math.round(pct)))); } catch (e) {}
+  };
+
+  // Validate jsPDF
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('Export unavailable: jsPDF not loaded.');
+    return Promise.reject(new Error('Missing jsPDF'));
+  }
+
+  // Acquire and normalize data
+  data = data || window.currentRevenueData || {};
+  const labels = Array.isArray(data.labels) ? data.labels.slice() : [];
+  const revenue = (Array.isArray(data.revenue) ? data.revenue.slice() : new Array(labels.length).fill(0)).map(v => Number(v) || 0);
+  const users = (Array.isArray(data.users) ? data.users.slice() : new Array(labels.length).fill(0)).map(v => Number(v) || 0);
+  const days = data.days_limit || labels.length || 0;
+
+  if (labels.length === 0) {
+    alert('No data to export. Please load the chart first.');
+    return Promise.reject(new Error('No labels'));
+  }
+
+  progress(10);
+
+  // Analytics
+  const totalRevenue = revenue.reduce((a, b) => a + b, 0);
+  const totalUsers = users.reduce((a, b) => a + b, 0);
+  const arpu = totalUsers > 0 ? (totalRevenue / totalUsers) : 0;
+
+  const mid = Math.floor(revenue.length / 2);
+  const prevPeriodRev = revenue.slice(0, mid).reduce((a, b) => a + b, 0);
+  const currentPeriodRev = revenue.slice(mid).reduce((a, b) => a + b, 0);
+  const revenueGrowth = prevPeriodRev > 0 ? ((currentPeriodRev - prevPeriodRev) / prevPeriodRev) * 100 : 0;
+
+  const prevUsers = users.slice(0, mid).reduce((a, b) => a + b, 0);
+  const currentUsers = users.slice(mid).reduce((a, b) => a + b, 0);
+  const userGrowth = prevUsers > 0 ? ((currentUsers - prevUsers) / prevUsers) * 100 : 0;
+
+  progress(30);
+
+  // Prepare PDF
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+
+  // Color tokens (RGB arrays)
+  const TOKENS = {
+    bg: [3, 7, 18],         // deep obsidian
+    surface: [17, 24, 39],  // slate surface
+    accent: [34, 211, 238], // cyan
+    text: [248, 250, 252],  // near-white
+    muted: [100, 116, 139], // slate muted
+    pos: [16, 185, 129],    // emerald
+    neg: [244, 63, 94]      // danger
+  };
+
+  // Safe helper: set text color from array or numbers
+  const setTextColorSafe = (c) => {
+    if (Array.isArray(c)) doc.setTextColor(...c);
+    else if (typeof c === 'string') doc.setTextColor(c);
+    else doc.setTextColor(0, 0, 0);
+  };
+
+  // Watermark helper (uses GState if available)
+  function addWatermark(pageNum) {
+    try {
+      doc.setPage(pageNum);
+      doc.setFontSize(40);
+      // Try to apply opacity via GState if supported
+      if (typeof doc.GState === 'function') {
+        try {
+          const g = new doc.GState({ opacity: 0.06 });
+          doc.setGState(g);
+        } catch (e) {
+          // ignore if constructor not supported
+        }
+      }
+      setTextColorSafe([220, 220, 220]);
+      doc.text('REVENUE PERFORMANCE', 105, 150, { align: 'center', angle: 45 });
+      // Reset GState if possible
+      if (typeof doc.GState === 'function') {
+        try {
+          const gReset = new doc.GState({ opacity: 1 });
+          doc.setGState(gReset);
+        } catch (e) {}
+      }
+    } catch (err) {
+      // Fail silently — watermark is decorative
+      console.warn('Watermark skipped', err);
+    }
+  }
+
+  // Draw background full page
+  const drawBackground = () => {
+    doc.setFillColor(...TOKENS.bg);
+    doc.rect(0, 0, 210, 297, 'F');
+  };
+
+  // --- Page 1: Header + KPI grid + chart snapshot ---
+  drawBackground();
+
+  // Header
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  setTextColorSafe(TOKENS.text);
+  doc.text('REVENUE PERFORMANCE REPORT', 15, 18);
+
+  doc.setFontSize(8);
+  doc.setFont('courier', 'normal');
+  setTextColorSafe(TOKENS.accent);
+  doc.text(`INTERVAL: ${labels.length} DAYS  |  GENERATED: ${new Date().toISOString().split('T')[0]}`, 15, 24);
+
+  // KPI cards (3 columns)
+  const cardW = 60, cardH = 34, cardY = 32, gap = 8, startX = 15;
+  const drawCard = (x, title, main, sub, trendPositive) => {
+    // card background (subtle surface)
+    doc.setFillColor(...TOKENS.surface);
+    doc.roundedRect(x, cardY, cardW, cardH, 3, 3, 'F');
+
+    // title
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setTextColorSafe(TOKENS.muted);
+    doc.text(title.toUpperCase(), x + 4, cardY + 7);
+
+    // main value
+    doc.setFontSize(13);
+    setTextColorSafe(TOKENS.text);
+    doc.text(main, x + 4, cardY + 20);
+
+    // sub / trend
+    doc.setFontSize(8);
+    setTextColorSafe(trendPositive ? TOKENS.pos : TOKENS.neg);
+    doc.text(sub, x + 4, cardY + 28);
+  };
+
+  drawCard(startX, 'Total Revenue', `${totalRevenue.toLocaleString()} ETB`, `${revenueGrowth.toFixed(1)}% vs prev`, revenueGrowth >= 0);
+  drawCard(startX + cardW + gap, 'User Acquisition', `${totalUsers.toLocaleString()} Users`, `${userGrowth.toFixed(1)}% vs prev`, userGrowth >= 0);
+  drawCard(startX + (cardW + gap) * 2, 'ARPU', `${arpu.toFixed(2)} ETB`, 'Revenue per user', true);
+
+  // Chart snapshot: prefer Chart.js instance image, fallback to generated chart if needed
+  try {
+    if (window.charts && window.charts.main && typeof window.charts.main.toBase64Image === 'function') {
+      const chartImg = window.charts.main.toBase64Image();
+      doc.addImage(chartImg, 'PNG', 15, 80, 180, 85);
+    } else if (window.Chart) {
+      // attempt to render a fresh high-res chart to canvas and embed
+      const canvas = document.createElement('canvas');
+      const DPR = Math.max(1, window.devicePixelRatio || 1);
+      const w = 1200, h = 480;
+      canvas.width = Math.round(w * DPR);
+      canvas.height = Math.round(h * DPR);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(DPR, DPR);
+      // Minimal chart for snapshot (no tooltips)
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ data: revenue, borderColor: 'rgba(34,211,238,0.95)', backgroundColor: 'rgba(34,211,238,0.08)', fill: true, tension: 0.28, pointRadius: 2 }] },
+        options: { responsive: false, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+      });
+      await new Promise(r => setTimeout(r, 80));
+      const dataUrl = canvas.toDataURL('image/png', 0.92);
+      doc.addImage(dataUrl, 'PNG', 15, 80, 180, 85);
+    } else {
+      // no chart available
+      doc.setFontSize(10);
+      setTextColorSafe([180, 180, 180]);
+      doc.text('Chart snapshot unavailable', 105, 120, { align: 'center' });
+    }
+  } catch (e) {
+    console.warn('Chart embed failed', e);
+    doc.setFontSize(10);
+    setTextColorSafe([180, 180, 180]);
+    doc.text('Chart snapshot unavailable', 105, 120, { align: 'center' });
+  }
+
+  progress(70);
+
+  // --- Page 2: Detailed table (monospaced) ---
+  doc.addPage();
+  drawBackground();
+
+  // Table header
+  const tableStartY = 30;
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(9);
+  setTextColorSafe(TOKENS.accent);
+  doc.text('DATE'.padEnd(20) + 'REVENUE'.padStart(12) + '  NEW_USERS'.padStart(12) + '  ARPU'.padStart(10), 15, tableStartY);
+
+  // Table rows (monospaced alignment)
+  doc.setFont('courier', 'normal');
+  doc.setFontSize(8);
+  setTextColorSafe([220, 220, 220]);
+
+  let y = tableStartY + 8;
+  const lineHeight = 6;
+  const pageBottom = 280;
+
+  for (let i = 0; i < labels.length; i++) {
+    if (y > pageBottom) {
+      doc.addPage();
+      drawBackground();
+      y = 20;
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(9);
+      setTextColorSafe(TOKENS.accent);
+      doc.text('DATE'.padEnd(20) + 'REVENUE'.padStart(12) + '  NEW_USERS'.padStart(12) + '  ARPU'.padStart(10), 15, y);
+      y += 8;
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8);
+      setTextColorSafe([220, 220, 220]);
+    }
+
+    const date = String(labels[i]).padEnd(20);
+    const revStr = revenue[i].toLocaleString().padStart(12);
+    const usersStr = users[i].toLocaleString().padStart(12);
+    const arpuStr = (users[i] > 0 ? (revenue[i] / users[i]).toFixed(2) : '0.00').padStart(10);
+
+    doc.text(`${date}${revStr}  ${usersStr}  ${arpuStr}`, 15, y);
+    y += lineHeight;
+  }
+
+  progress(90);
+
+  // Footer on all pages
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setTextColorSafe(TOKENS.muted);
+    doc.text(`CONFIDENTIAL • INTERNAL USE ONLY  •  PAGE ${p} OF ${pageCount}`, 105, 292, { align: 'center' });
+    addWatermark(p);
+  }
+
+  progress(100);
+
+  // Output
+  const filename = `Revenue_Performance_${labels.length}D_${Date.now()}.pdf`;
+  const blob = doc.output ? doc.output('blob') : null;
+
+  if (autoDownload) {
+    try {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        // fallback to jsPDF save
+        doc.save(filename);
+      }
+    } catch (e) {
+      console.warn('Auto-download failed', e);
+    }
+  }
+
+  return { doc, blob, filename };
+}
+
+      
+function createPremiumMainChart(ctx, data, opts = {}) {
+  // High-DPI safety: ensure canvas is crisp (caller may already scale; this is defensive)
+  (function ensureHiDPI(canvas) {
+    try {
+      const DPR = Math.max(1, window.devicePixelRatio || 1);
+      const w = canvas.clientWidth || 900;
+      const h = canvas.clientHeight || 420;
+      canvas.width = Math.round(w * DPR);
+      canvas.height = Math.round(h * DPR);
+      const ctx2 = canvas.getContext('2d');
+      ctx2.setTransform(DPR, 0, 0, DPR, 0, 0);
+    } catch (e) {}
+  })(ctx.canvas);
+
+  // Shared tokens
+  const TOKENS = {
+    revenue: '#22d3ee',
+    revenueGlow: 'rgba(34,211,238,0.18)',
+    user: '#10b981',
+    ghostBar: 'rgba(255,255,255,0.03)',
+    tooltipBg: 'rgba(7,16,36,0.95)',
+    axis: '#475569',
+    font: 'JetBrains Mono, monospace'
+  };
+
+  // Custom plugin: glow + shadow for the line and halo points
+  const glowPlugin = {
+    id: 'glowPlugin',
+    beforeDatasetDraw(chart, args, pluginOptions) {
+      const { ctx: c } = chart;
+      const dataset = chart.data.datasets[args.index];
+      if (dataset.type !== 'line') return;
+
+      c.save();
+      // draw glow by stroking the line multiple times with increasing blur
+      c.shadowColor = pluginOptions.shadowColor || TOKENS.revenueGlow;
+      c.shadowBlur = pluginOptions.shadowBlur || 18;
+      c.globalCompositeOperation = 'lighter';
+      // draw the line path again to create glow
+      chart.getDatasetMeta(args.index).dataset.draw(c);
+      c.restore();
+    }
+  };
+
+  // Custom plugin: halo points (draw large translucent ring behind points)
+  const haloPlugin = {
+    id: 'haloPlugin',
+    afterDatasetDraw(chart, args) {
+      const { ctx: c } = chart;
+      const meta = chart.getDatasetMeta(0); // assume revenue is dataset 0
+      if (!meta || !meta.data) return;
+      c.save();
+      meta.data.forEach((point, i) => {
+        const p = point.getProps(['x', 'y'], true);
+        // subtle halo only for visible points
+        c.beginPath();
+        c.arc(p.x, p.y, 10, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(34,211,238,0.06)';
+        c.fill();
+      });
+      c.restore();
+    }
+  };
+
+  // External tooltip handler (renders a polished HTML tooltip)
+  function createExternalTooltip(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return (context) => {};
+    container.style.pointerEvents = 'none';
+    container.classList.add('chart-external-tooltip');
+    return function externalTooltip(context) {
+      const tooltipModel = context.tooltip;
+      if (tooltipModel.opacity === 0) {
+        container.style.opacity = 0;
+        return;
+      }
+      const title = tooltipModel.title || [];
+      const body = tooltipModel.body || [];
+      container.innerHTML = `
+        <div style="background:${TOKENS.tooltipBg};color:#fff;padding:10px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.45);font-family:${TOKENS.font};min-width:140px;">
+          <div style="font-weight:700;margin-bottom:6px;">${title.join(' ')}</div>
+          ${body.map(b => `<div style="font-size:13px;">${b.lines.join('')}</div>`).join('')}
+        </div>
+      `;
+      container.style.opacity = 1;
+    };
+  }
+
+  // Build chart
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          type: 'line',
+          label: 'REVENUE (BR)',
+          data: data.revenue,
+          borderColor: TOKENS.revenue,
+          borderWidth: 3,
+          tension: 0.36,
+          fill: true,
+          backgroundColor: (ctxLine) => {
+            // gradient fallback if ctx.canvas is available
+            try {
+              const c = ctxLine.chart.ctx;
+              const g = c.createLinearGradient(0, 0, 0, ctxLine.chart.height);
+              g.addColorStop(0, 'rgba(34,211,238,0.22)');
+              g.addColorStop(1, 'rgba(34,211,238,0)');
+              return g;
+            } catch (e) {
+              return TOKENS.revenueGlow;
+            }
+          },
+          pointBackgroundColor: TOKENS.revenue,
+          pointBorderColor: 'rgba(34,211,238,0.4)',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderWidth: 12,
+          yAxisID: 'yRevenue',
+          order: 1
+        },
+       {
+  type: 'bar',
+  label: 'NEW USERS',
+  data: data.users,
+  // --- NEW COLOR COMBO ---
+  backgroundColor: 'rgba(99, 102, 241, 0.25)',   // Indigo base with transparency
+  hoverBackgroundColor: 'rgba(99, 102, 241, 0.55)', // Brighter indigo on hover
+  borderColor: 'rgba(99, 102, 241, 0.35)',       // Subtle border accent
+  borderWidth: 1,
+  borderRadius: 6,
+  barPercentage: 0.42,
+  yAxisID: 'yUsers',
+  order: 2
+},
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1600,
+        easing: 'easeOutQuart'
+      },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: TOKENS.axis, font: { family: TOKENS.font, size: 10 } }
+        },
+        yRevenue: {
+          position: 'left',
+          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+          ticks: {
+            color: TOKENS.revenue,
+            font: { family: TOKENS.font, size: 10 },
+            callback: v => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + 'k' : v)
+          }
+        },
+        yUsers: {
+          display: false
+        }
+      },
+      plugins: {
+        legend: {
+        display: true, // Turn it back on
+        position: 'top',
+        align: 'end',
+        labels: {
+            color: '#94a3b8', // Slate-400
+            font: { family: TOKENS.font, size: 10, weight: '600' },
+            boxWidth: 8,
+            boxHeight: 8,
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 20
+        },
+        // This adds a "dimming" effect to the one you aren't looking at
+        onClick: (e, legendItem, legend) => {
+            const index = legendItem.datasetIndex;
+            const ci = legend.chart;
+            const meta = ci.getDatasetMeta(index);
+
+            // Toggle visibility
+            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+            
+            ci.update();
+        }
+    },
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          backgroundColor: TOKENS.tooltipBg,
+          borderColor: 'rgba(255,255,255,0.06)',
+          borderWidth: 1,
+          padding: 10,
+          titleFont: { family: TOKENS.font, size: 11, weight: '700' },
+          bodyFont: { family: TOKENS.font, size: 12 },
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const value = context.parsed.y;
+              if (label.includes('REVENUE')) return `${label}: ${Intl.NumberFormat().format(value)} Br.`;
+              return `${label}: ${value}`;
+            },
+            afterBody: function(items) {
+              const idx = items[0]?.dataIndex;
+              const rev = data.revenue[idx] || 0;
+              const usr = data.users[idx] || 0;
+              if (usr > 0) return [`ARPU: ${(rev / usr).toFixed(1)} Br.`];
+              return [];
+            }
+          },
+          external: opts.externalTooltip ? createExternalTooltip(opts.externalTooltip) : undefined
+        }
+      },
+      onClick(evt, elements) {
+        if (!elements.length) return;
+        const el = elements[0];
+        const idx = el.index;
+        const payload = { index: idx, label: data.labels[idx], revenue: data.revenue[idx], users: data.users[idx] };
+        // user callback
+        if (typeof opts.onPointClick === 'function') opts.onPointClick(payload);
+        // analytics event
+        try { window.analytics?.track?.('chart_point_click', payload); } catch (e) {}
+      }
+    },
+    plugins: [glowPlugin, haloPlugin]
+  });
+
+  // Keyboard navigation (left/right) to focus points and show tooltip
+  (function attachKeyboardNav(chartInstance) {
+    let focused = 0;
+    function showFocus(i) {
+      focused = Math.max(0, Math.min(chartInstance.data.labels.length - 1, i));
+      chartInstance.setActiveElements([{ datasetIndex: 0, index: focused }]);
+      chartInstance.tooltip.setActiveElements([{ datasetIndex: 0, index: focused }], { x: 0, y: 0 });
+      chartInstance.update();
+    }
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { showFocus(focused + 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { showFocus(focused - 1); e.preventDefault(); }
+      if (e.key === 'Enter') {
+        const idx = focused;
+        const payload = { index: idx, label: chartInstance.data.labels[idx], revenue: data.revenue[idx], users: data.users[idx] };
+        if (typeof opts.onPointClick === 'function') opts.onPointClick(payload);
+      }
+    });
+  })(chart);
+
+  // Export helper: returns a high-res PNG dataURL for embedding in PDFs
+  async function exportHighRes(width = 1600, height = 800) {
+    const DPR = Math.max(1, window.devicePixelRatio || 1);
+    const off = document.createElement('canvas');
+    off.width = Math.round(width * DPR);
+    off.height = Math.round(height * DPR);
+    off.style.width = `${width}px`;
+    off.style.height = `${height}px`;
+    const offCtx = off.getContext('2d');
+    offCtx.scale(DPR, DPR);
+    const img = new Image();
+    img.src = chart.toBase64Image('image/png', 1);
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+    offCtx.drawImage(img, 0, 0, width, height);
+    return off.toDataURL('image/png', 0.92);
+  }
+
+  // Attach export helper and snapshot to chart instance for convenience
+  chart.exportHighRes = exportHighRes;
+  chart.snapshot = () => {
+    const totalRev = (data.revenue || []).reduce((a, b) => a + (b || 0), 0);
+    const totalUsers = (data.users || []).reduce((a, b) => a + (b || 0), 0);
+    return { totalRev, totalUsers, arpu: totalUsers ? (totalRev / totalUsers) : 0 };
+  };
+
+  return chart;
+}

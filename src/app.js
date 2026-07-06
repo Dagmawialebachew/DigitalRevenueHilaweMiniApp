@@ -406,9 +406,9 @@ async renderDashboard() {
 
   outlet.innerHTML = `
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 animate-fade-in">
-        ${this.componentKPI("Total Profit", `${Number(stats.total_revenue || 0).toLocaleString()} Br.`, 'brand-gold', 'fa-vault', 'delay-100')}
-        ${this.componentKPI("Active Nodes", stats.active_users || 0, 'brand-cyan', 'fa-network-wired', 'delay-200')}
-        ${this.componentKPI("Pending Syncs", stats.pending_payments || 0, 'brand-rose', 'fa-clock-rotate-left', 'delay-300')}
+        ${this.componentKPI("Total Revenue", `${Number(stats.total_revenue || 0).toLocaleString()} Br.`, 'brand-gold', 'fa-vault', 'delay-100')}
+        ${this.componentKPI("Active Users", stats.active_users || 0, 'brand-cyan', 'fa-network-wired', 'delay-200')}
+        ${this.componentKPI("Pending Transaction", stats.pending_payments || 0, 'brand-rose', 'fa-clock-rotate-left', 'delay-300')}
         ${this.componentKPI("Conv. Rate", `${stats.conversion_rate || 0}%`, 'brand-emerald', 'fa-bolt-lightning', 'delay-400')}
     </section>
 

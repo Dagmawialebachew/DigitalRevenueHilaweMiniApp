@@ -395,8 +395,13 @@ async renderDashboard() {
         status: distData
     };
 
+    // Calculate dynamic breakdown and combined total
+    const clubRevenue = Number(stats.club_revenue || 0);
+    const salesRevenue = Number(stats.sales_revenue || 0);
+    const totalRevenueSum = clubRevenue + salesRevenue;
+
     const kpi = {
-        revenue: stats.total_revenue || stats.revenue || 0,
+        revenue: totalRevenueSum,
         pending: stats.pending_payments || stats.pending || 0,
         users: stats.active_users || stats.users || 0,
         conversion: stats.conversion_rate || stats.conversion || 0
@@ -406,7 +411,17 @@ async renderDashboard() {
 
   outlet.innerHTML = `
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 animate-fade-in">
-        ${this.componentKPI("Total Revenue", `${Number(stats.total_revenue || 0).toLocaleString()} Br.`, 'brand-gold', 'fa-vault', 'delay-100')}
+        ${this.componentKPI(
+            "Total Revenue", 
+            `${totalRevenueSum.toLocaleString()} Br.
+             <div class="text-xs font-normal opacity-70 mt-3 flex justify-between gap-4 border-t border-white/10 pt-2">
+                 <span>Club: ${clubRevenue.toLocaleString()} Br.</span>
+                 <span>Sales: ${salesRevenue.toLocaleString()} Br.</span>
+             </div>`, 
+            'brand-gold', 
+            'fa-vault', 
+            'delay-100'
+        )}
         ${this.componentKPI("Active Users", stats.active_users || 0, 'brand-cyan', 'fa-network-wired', 'delay-200')}
         ${this.componentKPI("Pending Transaction", stats.pending_payments || 0, 'brand-rose', 'fa-clock-rotate-left', 'delay-300')}
         ${this.componentKPI("Conv. Rate", `${stats.conversion_rate || 0}%`, 'brand-emerald', 'fa-bolt-lightning', 'delay-400')}

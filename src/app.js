@@ -211,9 +211,19 @@ async renderLedger() {
     <div class="animate-fade-in space-y-10">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
-                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Gross_Revenue_Lifetime</p>
-                <h3 id="kpi-gross" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
-            </div>
+    <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Gross_Revenue_Lifetime</p>
+    <h3 id="kpi-gross" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
+    <div id="kpi-gross-breakdown" class="flex gap-4 mt-2">
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#d4a200;display:inline-block;flex-shrink:0;"></span>
+            Club: <span id="kpi-gross-club">0</span> Br
+        </span>
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#378ADD;display:inline-block;flex-shrink:0;"></span>
+            Sales: <span id="kpi-gross-sales">0</span> Br
+        </span>
+    </div>
+</div>
             <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
                 <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Total_Expenses</p>
                 <h3 id="kpi-burn" class="text-xl font-bold text-brand-rose mt-1">0.00 Br</h3>
@@ -222,10 +232,20 @@ async renderLedger() {
                 <p class="font-mono text-[9px] text-brand-cyan uppercase tracking-widest">Profit_Efficiency</p>
                 <h3 id="kpi-efficiency" class="text-xl font-bold text-white mt-1">0%</h3>
             </div>
-             <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
-                <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Net_Profit_To_Date</p>
-                <h3 id="cumulative-profit-display" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
-            </div>
+<div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
+    <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Net_Profit_To_Date</p>
+    <h3 id="cumulative-profit-display" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
+    <div class="flex gap-4 mt-2 flex-wrap">
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#378ADD;display:inline-block;flex-shrink:0;"></span>
+            Sales: <span id="kpi-net-sales">0</span> Br
+        </span>
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#d4a200;display:inline-block;flex-shrink:0;"></span>
+            Club: <span id="kpi-net-club">0</span> Br
+        </span>
+    </div>
+</div>
         </div>
 
         <div class="space-y-6">
@@ -397,7 +417,8 @@ async renderDashboard() {
 
     // Calculate dynamic breakdown and combined total
     const clubRevenue = Number(stats.club_revenue || 0);
-    const salesRevenue = Number(stats.sales_revenue || 0);
+    const salesRevenue = Number(stats.total_revenue || 0);
+
     const totalRevenueSum = clubRevenue + salesRevenue;
 
     const kpi = {
@@ -411,21 +432,18 @@ async renderDashboard() {
 
   outlet.innerHTML = `
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 animate-fade-in">
-        ${this.componentKPI(
-            "Total Revenue", 
-            `${totalRevenueSum.toLocaleString()} Br.
-             <div class="text-xs font-normal opacity-70 mt-3 flex justify-between gap-4 border-t border-white/10 pt-2">
-                 <span>Club: ${clubRevenue.toLocaleString()} Br.</span>
-                 <span>Sales: ${salesRevenue.toLocaleString()} Br.</span>
-             </div>`, 
-            'brand-gold', 
-            'fa-vault', 
-            'delay-100'
-        )}
-        ${this.componentKPI("Active Users", stats.active_users || 0, 'brand-cyan', 'fa-network-wired', 'delay-200')}
-        ${this.componentKPI("Pending Transaction", stats.pending_payments || 0, 'brand-rose', 'fa-clock-rotate-left', 'delay-300')}
-        ${this.componentKPI("Conv. Rate", `${stats.conversion_rate || 0}%`, 'brand-emerald', 'fa-bolt-lightning', 'delay-400')}
-    </section>
+    ${this.componentKPI(
+        "Total Revenue",
+        `${totalRevenueSum.toLocaleString()} Br.`,
+        'brand-gold',
+        'fa-vault',
+        'delay-100',
+        { club: clubRevenue, sales: salesRevenue }
+    )}
+    ${this.componentKPI("Active Users", stats.active_users || 0, 'brand-cyan', 'fa-network-wired', 'delay-200')}
+    ${this.componentKPI("Pending Transaction", stats.pending_payments || 0, 'brand-rose', 'fa-clock-rotate-left', 'delay-300')}
+    ${this.componentKPI("Conv. Rate", `${stats.conversion_rate || 0}%`, 'brand-emerald', 'fa-bolt-lightning', 'delay-400')}
+</section>
 
    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 bg-[#030712]">
     <div class="lg:col-span-8 bg-white/[0.03] backdrop-blur-2xl p-8 rounded-[2rem] border border-white/10 relative group overflow-hidden shadow-2xl">
@@ -553,13 +571,27 @@ async renderDashboard() {
 requestAnimationFrame(() => {
 this.initCharts(revData, demographicData);});
 },
+componentKPI(label, value, color, icon, delay, breakdown = null) {
+    const breakdownHTML = breakdown ? `
+        <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+            <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:rgba(255,255,255,0.45);">
+                <span style="width:6px;height:6px;border-radius:50%;background:#d4a200;flex-shrink:0;"></span>
+                ${breakdown.club.toLocaleString()} Br.
+            </span>
+            <span style="color:rgba(255,255,255,0.15); font-size:10px;">|</span>
+            <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:rgba(255,255,255,0.45);">
+                <span style="width:6px;height:6px;border-radius:50%;background:#378ADD;flex-shrink:0;"></span>
+                ${breakdown.sales.toLocaleString()} Br.
+            </span>
+        </div>
+    ` : '';
 
-componentKPI(label, value, color, icon, delay) {
     return `
         <div class="glass-ui p-8 rounded-[2.5rem] border border-white/5 border-t-2 border-t-${color} relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ${delay}">
             <div class="absolute inset-0 bg-gradient-to-br from-${color}/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <p class="font-mono text-[9px] text-slate-500 uppercase tracking-[0.3em] font-black mb-1 group-hover:text-white transition-colors">${label}</p>
             <h3 class="text-4xl font-black text-white italic tracking-tighter mt-4 relative z-10 group-hover:translate-x-1 transition-transform duration-500">${value}</h3>
+            ${breakdownHTML}
             <div class="absolute right-6 bottom-6 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 group-hover:border-${color}/30 group-hover:rotate-12 transition-all duration-700">
                 <i class="fa-solid ${icon} text-xl text-white/10 group-hover:text-${color} transition-colors"></i>
             </div>
@@ -706,8 +738,9 @@ initCharts(data, demoData) {
     // expose the current chart data globally so inline onclick can use it
 window.currentRevenueData = {
   labels: Array.isArray(data.labels) ? data.labels : [],
-  revenue: Array.isArray(data.revenue) ? data.revenue : new Array(data.labels?.length || 1).fill(0),
-  users: Array.isArray(data.users) ? data.users : new Array(data.labels?.length || 1).fill(0),
+  revenue_products: Array.isArray(data.revenue_products) ? data.revenue_products : [],
+  revenue_club: Array.isArray(data.revenue_club) ? data.revenue_club : [],
+  users: Array.isArray(data.users) ? data.users : [],
   days_limit: data.days_limit || (Array.isArray(data.labels) ? data.labels.length : 0)
 };
 
@@ -1132,104 +1165,108 @@ async function loadLedgerData() {
         const data = await statsRes.json();
         const history = await historyRes.json();
         
-        // UI Elements Mapping
-        const revInput = document.getElementById('payout-revenue'); 
-        const dedInput = document.getElementById('payout-deductions'); 
-        const noteInput = document.getElementById('payout-note');
-        const cumDisplay = document.getElementById('cumulative-profit-display'); 
+        // UI Elements
+        const revInput    = document.getElementById('payout-revenue'); 
+        const dedInput    = document.getElementById('payout-deductions'); 
+        const noteInput   = document.getElementById('payout-note');
+        const cumDisplay  = document.getElementById('cumulative-profit-display'); 
         const tierDisplay = document.getElementById('display-tier');
         const historyBody = document.getElementById('payout-history-body');
-        const confirmBtn = document.getElementById('confirm-payout-btn');
-
-        // KPI Elements
-        const kpiGross = document.getElementById('kpi-gross');
-        const kpiBurn = document.getElementById('kpi-burn');
-        const kpiEff = document.getElementById('kpi-efficiency');
-        const progBar = document.getElementById('tier-progress-bar');
-        const progLabel = document.getElementById('tier-label');
+        const confirmBtn  = document.getElementById('confirm-payout-btn');
+        const kpiGross    = document.getElementById('kpi-gross');
+        const kpiBurn     = document.getElementById('kpi-burn');
+        const kpiEff      = document.getElementById('kpi-efficiency');
+        const progBar     = document.getElementById('tier-progress-bar');
+        const progLabel   = document.getElementById('tier-label');
         const progPercent = document.getElementById('tier-percent');
 
         let currentMode = 'payout'; 
 
-        // --- 1. INITIAL DATA INJECTION (NET-FIRST LOGIC) ---
-        // CRITICAL CHANGE: We set the input to Cumulative Profit, not Pending Revenue.
-        // This ensures you are splitting what is ACTUALLY in the chest.
-        revInput.value = data.cumulative_profit.toFixed(2);
-        
-        cumDisplay.innerText = `${data.cumulative_profit.toLocaleString()} Br`;
-        
-        // Lifetime KPIs
-        kpiGross.innerText = `${data.lifetime_gross.toLocaleString()} Br`;
-        kpiBurn.innerText = `${data.lifetime_burn.toLocaleString()} Br`;
-        kpiEff.innerText = `${data.efficiency}%`; 
+        // --- 1. CORE NUMBERS ---
+        const ltGross = data.lifetime_gross            || 0;
+        const ltProd  = data.lifetime_products_gross   || 0;
+        const ltClub  = data.lifetime_club_gross       || 0;
+        const ltBurn  = data.lifetime_burn             || 0;
+        const netProfit = data.cumulative_profit       || 0;
 
-        // Tier Progress
-        progBar.style.width = `${data.tier_progress}%`;
+        const netFromClub  = ltClub;
+        const netFromSales = netProfit - ltClub;
+
+        // --- 2. INJECT KPI CARDS ---
+        revInput.value = netProfit.toFixed(2);
+        cumDisplay.innerText = `${netProfit.toLocaleString()} Br`;
+
+        kpiGross.innerText = `${ltGross.toLocaleString()} Br`;
+        kpiBurn.innerText  = `${ltBurn.toLocaleString()} Br`;
+        kpiEff.innerText   = `${data.efficiency}%`;
+
+        // Gross breakdown
+        const grossClubEl  = document.getElementById('kpi-gross-club');
+        const grossSalesEl = document.getElementById('kpi-gross-sales');
+        if (grossClubEl)  grossClubEl.innerText  = ltClub.toLocaleString();
+        if (grossSalesEl) grossSalesEl.innerText = ltProd.toLocaleString();
+
+        // Net breakdown (each stream's gross minus its share of burn)
+        const netSalesEl = document.getElementById('kpi-net-sales');
+        const netClubEl  = document.getElementById('kpi-net-club');
+        if (netSalesEl) netSalesEl.innerText = netFromSales.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        if (netClubEl)  netClubEl.innerText  = netFromClub.toLocaleString(undefined,  { maximumFractionDigits: 0 });
+
+        // --- 3. TIER PROGRESS ---
+        progBar.style.width  = `${data.tier_progress}%`;
         progPercent.innerText = `${data.tier_progress}%`;
-        progLabel.innerText = data.current_tier === 1 ? "Progress_to_Tier_2" : "Tier_2_Active_Limitless";
+        progLabel.innerText   = data.current_tier === 1 ? "Progress_to_Tier_2" : "Tier_2_Active_Limitless";
 
         if (data.trend_labels && data.trend_data) {
             initTrendChart(data.trend_labels, data.trend_data);
         }
 
-        // --- 2. THE CALCULATION ENGINE ---
+        // --- 4. CALCULATION ENGINE ---
         const updateCalculations = () => {
             const availableNet = parseFloat(revInput.value) || 0; 
-            const currentExp = parseFloat(dedInput.value) || 0;
-            const tier = data.current_tier;
+            const currentExp   = parseFloat(dedInput.value) || 0;
+            const tier         = data.current_tier;
+            const coachRatio   = tier === 1 ? 0.6 : 0.7;
+            const dagRatio     = tier === 1 ? 0.4 : 0.3;
 
-            const coachRatio = tier === 1 ? 0.6 : 0.7;
-            const dagRatio = tier === 1 ? 0.4 : 0.3;
-
-            const coachShareEl = document.getElementById('display-coach-share');
-            const dagShareEl = document.getElementById('display-dag-share');
-            const shareGrid = document.getElementById('share-display-grid');
+            const coachShareEl    = document.getElementById('display-coach-share');
+            const dagShareEl      = document.getElementById('display-dag-share');
+            const shareGrid       = document.getElementById('share-display-grid');
             const revenueContainer = document.getElementById('payout-revenue-container');
 
             if (currentMode === 'expense_only') {
                 coachShareEl.innerText = "0.00 Br";
-                dagShareEl.innerText = "0.00 Br";
+                dagShareEl.innerText   = "0.00 Br";
                 shareGrid.style.opacity = "0.1"; 
                 revenueContainer?.classList.add('opacity-30');
-                
                 tierDisplay.innerText = "MODE // STANDALONE_EXPENSE_LOG";
-                confirmBtn.innerText = "Log_Expense_Only";
+                confirmBtn.innerText  = "Log_Expense_Only";
                 confirmBtn.classList.replace('bg-brand-cyan', 'bg-brand-rose');
             } else {
-                // Distribute whatever is in the field minus current new deductions
                 const distributable = Math.max(0, availableNet - currentExp);
-                
-                const coachAmount = (distributable * coachRatio).toFixed(2);
-                const dagAmount = (distributable * dagRatio).toFixed(2);
-
-                coachShareEl.innerText = `${parseFloat(coachAmount).toLocaleString()} Br`;
-                dagShareEl.innerText = `${parseFloat(dagAmount).toLocaleString()} Br`;
-
+                coachShareEl.innerText = `${(distributable * coachRatio).toLocaleString(undefined, { maximumFractionDigits: 2 })} Br`;
+                dagShareEl.innerText   = `${(distributable * dagRatio).toLocaleString(undefined,   { maximumFractionDigits: 2 })} Br`;
                 shareGrid.style.opacity = "1";
                 revenueContainer?.classList.remove('opacity-30');
-                
-                tierDisplay.innerText = `ACTIVE // TIER_${tier} (${(coachRatio * 100).toFixed(0)}/${(dagRatio * 100).toFixed(0)}_SPLIT)`;
-                confirmBtn.innerText = "Complete_Payout_&_Save";
+                tierDisplay.innerText = `ACTIVE // TIER_${tier} (${(coachRatio*100).toFixed(0)}/${(dagRatio*100).toFixed(0)}_SPLIT)`;
+                confirmBtn.innerText  = "Complete_Payout_&_Save";
                 confirmBtn.classList.replace('bg-brand-rose', 'bg-brand-cyan');
             }
         };
 
-        // --- 3. MODE TOGGLE LOGIC ---
-        const btnPayoutMode = document.getElementById('mode-payout');
-        const btnExpenseMode = document.getElementById('mode-expense');
-
-        btnPayoutMode.onclick = () => {
+        // --- 5. MODE TOGGLES ---
+        document.getElementById('mode-payout').onclick = () => {
             currentMode = 'payout';
-            btnPayoutMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-cyan text-slate-950 uppercase";
-            btnExpenseMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
+            document.getElementById('mode-payout').className  = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-cyan text-slate-950 uppercase";
+            document.getElementById('mode-expense').className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
             revInput.disabled = false;
             updateCalculations();
         };
 
-        btnExpenseMode.onclick = () => {
+        document.getElementById('mode-expense').onclick = () => {
             currentMode = 'expense_only';
-            btnExpenseMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-rose text-white uppercase";
-            btnPayoutMode.className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
+            document.getElementById('mode-expense').className = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all bg-brand-rose text-white uppercase";
+            document.getElementById('mode-payout').className  = "flex-1 py-3 rounded-xl text-[9px] font-black font-mono transition-all text-slate-500 hover:text-white uppercase";
             revInput.disabled = true;
             updateCalculations();
         };
@@ -1238,24 +1275,23 @@ async function loadLedgerData() {
         revInput.addEventListener('input', updateCalculations);
         updateCalculations();
 
-        // --- 4. RENDER HISTORY ---
+        // --- 6. RENDER HISTORY ---
         renderHistory(history, historyBody);
 
-        // --- 5. EXECUTION HANDLER ---
+        // --- 7. EXECUTION HANDLER ---
         confirmBtn.onclick = async () => {
-            const amount = currentMode === 'payout' ? parseFloat(revInput.value) : parseFloat(dedInput.value);
+            const amount     = currentMode === 'payout' ? parseFloat(revInput.value) : parseFloat(dedInput.value);
             const deductions = currentMode === 'payout' ? parseFloat(dedInput.value) : 0;
-            const note = noteInput.value.trim();
+            const note       = noteInput.value.trim();
 
-            if (amount <= 0 && currentMode === 'payout') return toast("ENTER FUNDS TO SPLIT", "error");
+            if (amount <= 0 && currentMode === 'payout')      return toast("ENTER FUNDS TO SPLIT", "error");
             if (amount <= 0 && currentMode === 'expense_only') return toast("ENTER EXPENSE AMOUNT", "error");
             if (!note) return toast("MEMO REQUIRED", "error");
 
-            const confirmMsg = currentMode === 'payout' 
+            if (!confirm(currentMode === 'payout'
                 ? "Authorize Payout? This splits profit and reduces the War Chest."
-                : "Log Standalone Expense? This hits the War Chest without share split.";
-            
-            if(!confirm(confirmMsg)) return;
+                : "Log Standalone Expense? This hits the War Chest without share split."
+            )) return;
             
             confirmBtn.disabled = true;
             confirmBtn.innerText = "SYNCING...";
@@ -1263,18 +1299,13 @@ async function loadLedgerData() {
             try {
                 const response = await fetch(`${API_BASE}/payouts/confirm`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        amount,      
-                        deductions,  
-                        note,
-                        entry_type: currentMode
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, deductions, note, entry_type: currentMode })
                 });
 
-                if(response.ok) {
+                if (response.ok) {
                     toast(currentMode === 'payout' ? "FINANCIAL_SYNC_COMPLETE" : "EXPENSE_ARCHIVED");
-                    dedInput.value = "";
+                    dedInput.value  = "";
                     noteInput.value = "";
                     await loadLedgerData(); 
                 } else {
@@ -1574,8 +1605,10 @@ async function generatePremiumPDF({ data = null, onProgress = () => {}, autoDown
   // Acquire and normalize data
   data = data || window.currentRevenueData || {};
   const labels = Array.isArray(data.labels) ? data.labels.slice() : [];
-  const revenue = (Array.isArray(data.revenue) ? data.revenue.slice() : new Array(labels.length).fill(0)).map(v => Number(v) || 0);
-  const users = (Array.isArray(data.users) ? data.users.slice() : new Array(labels.length).fill(0)).map(v => Number(v) || 0);
+    const revenue_products = (Array.isArray(data.revenue_products) ? data.revenue_products : []).map(v => Number(v) || 0);
+    const revenue_club = (Array.isArray(data.revenue_club) ? data.revenue_club : []).map(v => Number(v) || 0);
+    const revenue = revenue_products.map((v, i) => v + (revenue_club[i] || 0)); // combined for KPI math
+    const users = (Array.isArray(data.users) ? data.users.slice() : new Array(labels.length).fill(0)).map(v => Number(v) || 0);
   const days = data.days_limit || labels.length || 0;
 
   if (labels.length === 0) {
@@ -1749,7 +1782,7 @@ async function generatePremiumPDF({ data = null, onProgress = () => {}, autoDown
   doc.setFont('courier', 'bold');
   doc.setFontSize(9);
   setTextColorSafe(TOKENS.accent);
-  doc.text('DATE'.padEnd(20) + 'REVENUE'.padStart(12) + '  NEW_USERS'.padStart(12) + '  ARPU'.padStart(10), 15, tableStartY);
+    doc.text('DATE'.padEnd(20) + 'PROD_REV'.padStart(12) + '  CLUB_REV'.padStart(12) + '  USERS'.padStart(8) + '  ARPU'.padStart(10), 15, tableStartY);
 
   // Table rows (monospaced alignment)
   doc.setFont('courier', 'normal');
@@ -1776,11 +1809,11 @@ async function generatePremiumPDF({ data = null, onProgress = () => {}, autoDown
     }
 
     const date = String(labels[i]).padEnd(20);
-    const revStr = revenue[i].toLocaleString().padStart(12);
-    const usersStr = users[i].toLocaleString().padStart(12);
+    const prodStr = revenue_products[i].toLocaleString().padStart(12);
+    const clubStr = revenue_club[i].toLocaleString().padStart(12);
+    const usersStr = users[i].toLocaleString().padStart(8);
     const arpuStr = (users[i] > 0 ? (revenue[i] / users[i]).toFixed(2) : '0.00').padStart(10);
-
-    doc.text(`${date}${revStr}  ${usersStr}  ${arpuStr}`, 15, y);
+    doc.text(`${date}${prodStr}  ${clubStr}  ${usersStr}  ${arpuStr}`, 15, y);
     y += lineHeight;
   }
 
@@ -1921,51 +1954,65 @@ function createPremiumMainChart(ctx, data, opts = {}) {
     data: {
       labels: data.labels,
       datasets: [
-        {
-          type: 'line',
-          label: 'REVENUE (BR)',
-          data: data.revenue,
-          borderColor: TOKENS.revenue,
-          borderWidth: 3,
-          tension: 0.36,
-          fill: true,
-          backgroundColor: (ctxLine) => {
-            // gradient fallback if ctx.canvas is available
-            try {
-              const c = ctxLine.chart.ctx;
-              const g = c.createLinearGradient(0, 0, 0, ctxLine.chart.height);
-              g.addColorStop(0, 'rgba(34,211,238,0.22)');
-              g.addColorStop(1, 'rgba(34,211,238,0)');
-              return g;
-            } catch (e) {
-              return TOKENS.revenueGlow;
-            }
-          },
-          pointBackgroundColor: TOKENS.revenue,
-          pointBorderColor: 'rgba(34,211,238,0.4)',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 4,
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderWidth: 12,
-          yAxisID: 'yRevenue',
-          order: 1
-        },
-       {
-  type: 'bar',
-  label: 'NEW USERS',
-  data: data.users,
-  // --- NEW COLOR COMBO ---
-  backgroundColor: 'rgba(99, 102, 241, 0.25)',   // Indigo base with transparency
-  hoverBackgroundColor: 'rgba(99, 102, 241, 0.55)', // Brighter indigo on hover
-  borderColor: 'rgba(99, 102, 241, 0.35)',       // Subtle border accent
-  borderWidth: 1,
-  borderRadius: 6,
-  barPercentage: 0.42,
-  yAxisID: 'yUsers',
-  order: 2
-},
-      ]
+  {
+    type: 'line',
+    label: 'PRODUCT SALES (BR)',
+    data: data.revenue_products,
+    borderColor: TOKENS.revenue,
+    borderWidth: 3,
+    tension: 0.36,
+    fill: true,
+    backgroundColor: (ctxLine) => {
+      try {
+        const c = ctxLine.chart.ctx;
+        const g = c.createLinearGradient(0, 0, 0, ctxLine.chart.height);
+        g.addColorStop(0, 'rgba(34,211,238,0.22)');
+        g.addColorStop(1, 'rgba(34,211,238,0)');
+        return g;
+      } catch (e) { return TOKENS.revenueGlow; }
+    },
+    pointBackgroundColor: TOKENS.revenue,
+    pointBorderColor: 'rgba(34,211,238,0.4)',
+    pointBorderWidth: 2,
+    pointRadius: 4,
+    pointHoverRadius: 4,
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderWidth: 12,
+    yAxisID: 'yRevenue',
+    order: 1
+  },
+  {
+    type: 'line',
+    label: 'CLUB REVENUE (BR)',
+    data: data.revenue_club,
+    borderColor: '#f59e0b',
+    borderWidth: 2,
+    borderDash: [5, 4],
+    tension: 0.36,
+    fill: false,
+    pointBackgroundColor: '#f59e0b',
+    pointBorderColor: 'rgba(245,158,11,0.4)',
+    pointBorderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: '#fff',
+    yAxisID: 'yRevenue',
+    order: 2
+  },
+  {
+    type: 'bar',
+    label: 'NEW USERS',
+    data: data.users,
+    backgroundColor: 'rgba(99, 102, 241, 0.25)',
+    hoverBackgroundColor: 'rgba(99, 102, 241, 0.55)',
+    borderColor: 'rgba(99, 102, 241, 0.35)',
+    borderWidth: 1,
+    borderRadius: 6,
+    barPercentage: 0.42,
+    yAxisID: 'yUsers',
+    order: 3
+  },
+]
     },
     options: {
       responsive: true,
@@ -2030,20 +2077,23 @@ function createPremiumMainChart(ctx, data, opts = {}) {
           titleFont: { family: TOKENS.font, size: 11, weight: '700' },
           bodyFont: { family: TOKENS.font, size: 12 },
           callbacks: {
-            label: function(context) {
-              const label = context.dataset.label || '';
-              const value = context.parsed.y;
-              if (label.includes('REVENUE')) return `${label}: ${Intl.NumberFormat().format(value)} Br.`;
-              return `${label}: ${value}`;
-            },
-            afterBody: function(items) {
-              const idx = items[0]?.dataIndex;
-              const rev = data.revenue[idx] || 0;
-              const usr = data.users[idx] || 0;
-              if (usr > 0) return [`ARPU: ${(rev / usr).toFixed(1)} Br.`];
-              return [];
-            }
-          },
+  label: function(context) {
+    const label = context.dataset.label || '';
+    const value = context.parsed.y;
+    if (label.includes('REVENUE') || label.includes('SALES')) {
+      return `${label}: ${Intl.NumberFormat().format(value)} Br.`;
+    }
+    return `${label}: ${value}`;
+  },
+  afterBody: function(items) {
+    const idx = items[0]?.dataIndex;
+    const rev = (data.revenue_products[idx] || 0) + (data.revenue_club[idx] || 0);
+    const usr = data.users[idx] || 0;
+    const combined = `COMBINED: ${Intl.NumberFormat().format(rev)} Br.`;
+    if (usr > 0) return [combined, `ARPU: ${(rev / usr).toFixed(1)} Br.`];
+    return [combined];
+  }
+},
           external: opts.externalTooltip ? createExternalTooltip(opts.externalTooltip) : undefined
         }
       },

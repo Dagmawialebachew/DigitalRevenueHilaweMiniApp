@@ -238,11 +238,11 @@ async renderLedger() {
     <div class="flex gap-4 mt-2 flex-wrap">
         <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
             <span style="width:5px;height:5px;border-radius:50%;background:#378ADD;display:inline-block;flex-shrink:0;"></span>
-            Sales: <span id="kpi-net-sales">0</span> Br
+            // Sales: <span id="kpi-net-sales">0</span> Br
         </span>
         <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
             <span style="width:5px;height:5px;border-radius:50%;background:#d4a200;display:inline-block;flex-shrink:0;"></span>
-            Club: <span id="kpi-net-club">0</span> Br
+            // Club: <span id="kpi-net-club">0</span> Br
         </span>
     </div>
 </div>

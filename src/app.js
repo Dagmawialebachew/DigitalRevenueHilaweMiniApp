@@ -3,6 +3,19 @@
  * Ultra High-End Admin Control Logic
  */
 
+
+
+/**<div class="flex gap-4 mt-2 flex-wrap">
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#378ADD;display:inline-block;flex-shrink:0;"></span>
+            // Sales: <span id="kpi-net-sales">0</span> Br
+        </span>
+        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
+            <span style="width:5px;height:5px;border-radius:50%;background:#d4a200;display:inline-block;flex-shrink:0;"></span>
+            // Club: <span id="kpi-net-club">0</span> Br
+        </span>
+    </div>
+*/
 const API_BASE = "https://digitalrevenuehilawe.onrender.com/api/admin";
 // const API_BASE = "http://localhost:8000/api/admin";
 
@@ -235,16 +248,7 @@ async renderLedger() {
 <div class="glass-ui p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
     <p class="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Net_Profit_To_Date</p>
     <h3 id="cumulative-profit-display" class="text-xl font-bold text-white mt-1">0.00 Br</h3>
-    <div class="flex gap-4 mt-2 flex-wrap">
-        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
-            <span style="width:5px;height:5px;border-radius:50%;background:#378ADD;display:inline-block;flex-shrink:0;"></span>
-            // Sales: <span id="kpi-net-sales">0</span> Br
-        </span>
-        <span class="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
-            <span style="width:5px;height:5px;border-radius:50%;background:#d4a200;display:inline-block;flex-shrink:0;"></span>
-            // Club: <span id="kpi-net-club">0</span> Br
-        </span>
-    </div>
+    /NOte/
 </div>
         </div>
 

@@ -60,6 +60,7 @@ coverage.xml
 
 # Node.js / front-end if any
 node_modules/
+dist/
 npm-debug.log
 yarn-error.log
 

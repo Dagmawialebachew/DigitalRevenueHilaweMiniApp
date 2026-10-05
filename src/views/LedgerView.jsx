@@ -14,7 +14,7 @@ export default function LedgerView() {
   const [memoNote, setMemoNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Core dual-stream state governed by the August 10, 2026 agreement
+  // Core tri-stream state governed by the August 10, 2026 agreement & Stream C Addendum
   const [pendingData, setPendingData] = useState({
     pending_revenue: 31091,
     pending_deductions: 0,
@@ -47,6 +47,21 @@ export default function LedgerView() {
       target_milestone: 50000,
       progress_pct: 41.9,
       clause: 'Section 6.2 (Initial 60/40 until 50k ETB, then 65/35)',
+    },
+    meal_stream: {
+      gross: 0,
+      count: 0,
+      deductions: 0,
+      net: 0,
+      stage: 'initial_40_60',
+      coach_rate: 0.60,
+      dagmawi_rate: 0.40,
+      coach_share: 0,
+      dagmawi_share: 0,
+      cumulative_all_time: 0,
+      target_milestone: 100000,
+      progress_pct: 0,
+      clause: 'Stream C (Initial 40% Dagmawi / 60% Coach until 100k ETB, then 35/65)',
     },
     infrastructure_cap: {
       monthly_limit: 5000,
@@ -157,38 +172,52 @@ export default function LedgerView() {
     fetchLedger();
   }, []);
 
-  // Live Pro-Rata Settlement Calculations
+  // Live Pro-Rata Settlement Calculations across 3 streams
   const prodGross = pendingData.products_stream?.gross || 0;
   const clubGross = pendingData.club_stream?.gross || 0;
-  const totalPendingGross = prodGross + clubGross;
+  const mealGross = pendingData.meal_stream?.gross || 0;
+  const totalPendingGross = prodGross + clubGross + mealGross;
 
   const enteredDeduction = Math.max(0, parseFloat(deductionsInput) || 0);
 
-  // Pro-rata deduction distribution
+  // Pro-rata deduction distribution across 3 streams
   let liveProdDeduct = 0;
   let liveClubDeduct = 0;
+  let liveMealDeduct = 0;
   if (totalPendingGross > 0 && enteredDeduction > 0) {
     const prodRatio = prodGross / totalPendingGross;
+    const clubRatio = clubGross / totalPendingGross;
     liveProdDeduct = Math.round(enteredDeduction * prodRatio * 100) / 100;
-    liveClubDeduct = Math.max(0, enteredDeduction - liveProdDeduct);
+    liveClubDeduct = Math.round(enteredDeduction * clubRatio * 100) / 100;
+    liveMealDeduct = Math.max(0, Math.round((enteredDeduction - liveProdDeduct - liveClubDeduct) * 100) / 100);
   }
 
   const liveProdNet = Math.max(0, prodGross - liveProdDeduct);
   const liveClubNet = Math.max(0, clubGross - liveClubDeduct);
+  const liveMealNet = Math.max(0, mealGross - liveMealDeduct);
 
   // Stream A: Fixed 70% Coach / 30% Dagmawi (Section 6.1)
   const liveProdCoach = Math.round(liveProdNet * 0.70 * 100) / 100;
-  const liveProdDag = Math.max(0, liveProdNet - liveProdCoach);
+  const liveProdDag = Math.max(0, Math.round((liveProdNet - liveProdCoach) * 100) / 100);
 
   // Stream B: 60% Coach / 40% Dagmawi until 50k ETB milestone, then 65/35 (Section 6.2)
   const isClubMature = (pendingData.club_stream?.cumulative_all_time || 0) >= 50000;
   const clubCoachRate = isClubMature ? 0.65 : 0.60;
   const liveClubCoach = Math.round(liveClubNet * clubCoachRate * 100) / 100;
-  const liveClubDag = Math.max(0, liveClubNet - liveClubCoach);
+  const liveClubDag = Math.max(0, Math.round((liveClubNet - liveClubCoach) * 100) / 100);
 
-  const totalCoachShare = liveProdCoach + liveClubCoach;
-  const totalDagShare = liveProdDag + liveClubDag;
-  const totalNetDistributable = liveProdNet + liveClubNet;
+  // Stream C: 60% Coach / 40% Dagmawi until 100k ETB milestone, then 65/35 (Stream C Agreement)
+  const mealCumul = pendingData.meal_stream?.cumulative_all_time || 0;
+  const mealTarget = pendingData.meal_stream?.target_milestone || 100000;
+  const isMealMature = mealCumul >= mealTarget;
+  const mealCoachRate = isMealMature ? 0.65 : 0.60;
+  const liveMealCoach = Math.round(liveMealNet * mealCoachRate * 100) / 100;
+  const liveMealDag = Math.max(0, Math.round((liveMealNet - liveMealCoach) * 100) / 100);
+  const mealProgress = pendingData.meal_stream?.progress_pct || (mealTarget > 0 ? Math.round((mealCumul / mealTarget) * 1000) / 10 : 0);
+
+  const totalCoachShare = Math.round((liveProdCoach + liveClubCoach + liveMealCoach) * 100) / 100;
+  const totalDagShare = Math.round((liveProdDag + liveClubDag + liveMealDag) * 100) / 100;
+  const totalNetDistributable = Math.round((liveProdNet + liveClubNet + liveMealNet) * 100) / 100;
 
   // Chart Rendering
   useEffect(() => {
@@ -266,11 +295,12 @@ export default function LedgerView() {
           entry_type: 'payout',
           products_amount: prodGross,
           club_amount: clubGross,
+          meal_amount: mealGross,
           deductions: enteredDeduction,
-          note: memoNote || `Saturday Partner Settlement (Products: 70/30, Club: ${isClubMature ? '65/35' : '60/40'})`,
+          note: memoNote || `Saturday Partner Settlement (Products: 70/30, Club: ${isClubMature ? '65/35' : '60/40'}, Meal Plan: ${isMealMature ? '65/35' : '60/40'})`,
         };
         const res = await api.confirmPayout(payload);
-        toast('Dual-stream partner settlement recorded successfully!', 'success');
+        toast('Tri-stream partner settlement recorded successfully!', 'success');
         setMemoNote('');
         setDeductionsInput('0');
         fetchLedger();
@@ -310,11 +340,13 @@ export default function LedgerView() {
       gross_revenue: totalPendingGross,
       products_gross: prodGross,
       club_gross: clubGross,
+      meal_plan_gross: mealGross,
       operational_deductions: enteredDeduction,
       net_profit: totalNetDistributable,
       coach_share: totalCoachShare,
       dagmawi_share: totalDagShare,
       club_stage: isClubMature ? 'mature_65_35' : 'initial_60_40',
+      meal_plan_stage: isMealMature ? 'mature_35_65' : 'initial_40_60',
       expense_note: memoNote || 'Official Pending Partner Settlement Draft (Section 8 Statement)',
     });
   };
@@ -341,10 +373,10 @@ export default function LedgerView() {
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-2">
-            Partnership Settlement & Dual-Stream Financial Engine
+            Partnership Settlement & Tri-Stream Financial Engine
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Governed by the signed partnership contract: Digital Products are fixed at <span className="text-emerald-400 font-semibold">70/30</span>, while Community Subscriptions operate at <span className="text-purple-400 font-semibold">60/40</span> until the 50k ETB milestone is achieved.
+            Governed by the signed partnership agreement: Digital Products are fixed at <span className="text-emerald-400 font-semibold">70/30</span>, Community Subscriptions at <span className="text-purple-400 font-semibold">60/40</span> (until 50k ETB), and Meal Plan Automation at <span className="text-amber-400 font-semibold">40% Dagmawi / 60% Coach</span> (until 100k ETB milestone, then 35/65).
           </p>
         </div>
 
@@ -380,9 +412,10 @@ export default function LedgerView() {
           <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2 font-mono">
             {totalPendingGross.toLocaleString()} <span className="text-sm font-sans font-normal text-slate-400">ETB</span>
           </h3>
-          <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5">
-            <span className="text-emerald-400 font-mono font-bold">{prodGross.toLocaleString()} Br</span> Products +{' '}
-            <span className="text-purple-400 font-mono font-bold">{clubGross.toLocaleString()} Br</span> Club
+          <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5 flex-wrap">
+            <span className="text-emerald-400 font-mono font-bold">{prodGross.toLocaleString()} Br</span> Prod +{' '}
+            <span className="text-purple-400 font-mono font-bold">{clubGross.toLocaleString()} Br</span> Club +{' '}
+            <span className="text-amber-400 font-mono font-bold">{mealGross.toLocaleString()} Br</span> Meals
           </p>
         </div>
 
@@ -407,14 +440,14 @@ export default function LedgerView() {
           <div className="flex items-center justify-between text-xs text-amber-400/90 font-medium">
             <span>Coach Hilawe Entitlement</span>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              {totalPendingGross > 0 ? Math.round((totalCoachShare / totalPendingGross) * 1000) / 10 : 68.9}%
+              {totalPendingGross > 0 ? Math.round((totalCoachShare / totalPendingGross) * 1000) / 10 : 66.7}%
             </span>
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2 font-mono">
             {totalCoachShare.toLocaleString()} <span className="text-sm font-sans font-normal text-slate-400">ETB</span>
           </h3>
           <p className="text-[11px] text-slate-400 mt-2">
-            70% of Products ({liveProdCoach.toLocaleString()} Br) + {clubCoachRate * 100}% Club ({liveClubCoach.toLocaleString()} Br)
+            70% Prod ({liveProdCoach.toLocaleString()} Br) + {clubCoachRate * 100}% Club ({liveClubCoach.toLocaleString()} Br) + {mealCoachRate * 100}% Meals ({liveMealCoach.toLocaleString()} Br)
           </p>
         </div>
 
@@ -423,20 +456,20 @@ export default function LedgerView() {
           <div className="flex items-center justify-between text-xs text-cyan-400/90 font-medium">
             <span>Dagmawi Tech Entitlement</span>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              {totalPendingGross > 0 ? Math.round((totalDagShare / totalPendingGross) * 1000) / 10 : 31.1}%
+              {totalPendingGross > 0 ? Math.round((totalDagShare / totalPendingGross) * 1000) / 10 : 33.3}%
             </span>
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2 font-mono">
             {totalDagShare.toLocaleString()} <span className="text-sm font-sans font-normal text-slate-400">ETB</span>
           </h3>
           <p className="text-[11px] text-slate-400 mt-2">
-            30% of Products ({liveProdDag.toLocaleString()} Br) + {Math.round((1 - clubCoachRate) * 100)}% Club ({liveClubDag.toLocaleString()} Br)
+            30% Prod ({liveProdDag.toLocaleString()} Br) + {Math.round((1 - clubCoachRate) * 100)}% Club ({liveClubDag.toLocaleString()} Br) + {Math.round((1 - mealCoachRate) * 100)}% Meals ({liveMealDag.toLocaleString()} Br)
           </p>
         </div>
       </div>
 
-      {/* Dual Stream Architecture Breakdown Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+      {/* Tri-Stream Architecture Breakdown Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
         {/* Stream A: Digital Products Engine (Section 6.1) */}
         <div className="premium-card p-6 sm:p-7 relative overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.02] to-transparent">
           <div className="flex items-center justify-between mb-4">
@@ -553,6 +586,71 @@ export default function LedgerView() {
             </div>
           </div>
         </div>
+
+        {/* Stream C: Meal Plan Automation System */}
+        <div className="premium-card p-6 sm:p-7 relative overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-500/[0.02] to-transparent">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <i className="fa-solid fa-bowl-food text-sm"></i>
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-white tracking-tight">Stream C: Meal Plan System</h4>
+                <p className="text-[11px] text-slate-400">Personalized nutrition, fasting protocols & PDFs</p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              {isMealMature ? 'Stage 2: 35% Dag / 65% Coach' : 'Stage 1: 40% Dag / 60% Coach'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] mb-5 font-mono text-center">
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-sans">Pending Gross</p>
+              <p className="text-base font-bold text-white mt-1">{mealGross.toLocaleString()} Br</p>
+              <p className="text-[10px] text-slate-400 font-sans">{pendingData.meal_stream?.count || 0} plans</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-sans">Pro-Rata Burn</p>
+              <p className="text-base font-bold text-rose-400 mt-1">-{liveMealDeduct.toLocaleString()} Br</p>
+              <p className="text-[10px] text-slate-400 font-sans">Allocated share</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-sans">Net Distributable</p>
+              <p className="text-base font-bold text-amber-400 mt-1">{liveMealNet.toLocaleString()} Br</p>
+              <p className="text-[10px] text-slate-400 font-sans">Post-deductions</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs p-3 rounded-lg bg-white/[0.01] border border-white/[0.04]">
+              <span className="text-slate-300 font-medium">Coach Hilawe Semma ({mealCoachRate * 100}%)</span>
+              <span className="text-white font-mono font-bold">{liveMealCoach.toLocaleString()} ETB</span>
+            </div>
+            <div className="flex items-center justify-between text-xs p-3 rounded-lg bg-white/[0.01] border border-white/[0.04]">
+              <span className="text-slate-300 font-medium">Dagmawi Tewodros ({Math.round((1 - mealCoachRate) * 100)}%)</span>
+              <span className="text-cyan-400 font-mono font-bold">{liveMealDag.toLocaleString()} ETB</span>
+            </div>
+          </div>
+
+          {/* 100,000 ETB Transition Milestone Gauge */}
+          <div className="mt-5 p-3 rounded-xl bg-amber-950/20 border border-amber-500/20">
+            <div className="flex items-center justify-between text-[11px] mb-1.5">
+              <span className="text-amber-300 font-medium">100,000 ETB Transition Milestone (Stream C)</span>
+              <span className="text-white font-mono font-bold">{mealProgress}%</span>
+            </div>
+            <div className="w-full bg-white/[0.06] h-2 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(3, mealProgress))}%` }}
+              ></div>
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
+              <span>{mealCumul.toLocaleString()} ETB Recorded</span>
+              <span>Target: {mealTarget.toLocaleString()} ETB (Then 35/65)</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Execution Console & Trend Visualizer Grid */}
@@ -590,18 +688,24 @@ export default function LedgerView() {
                 <label className="block text-xs font-medium text-slate-400 mb-1.5">
                   Available Revenue (Database Verified)
                 </label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <input
                     type="text"
-                    value={`Products: ${prodGross.toLocaleString()} ETB`}
+                    value={`Prod: ${prodGross.toLocaleString()} ETB`}
                     readOnly
-                    className="w-1/2 bg-white/[0.02] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono outline-none cursor-not-allowed"
+                    className="w-full bg-white/[0.02] border border-white/[0.08] rounded-xl px-2.5 py-2 text-xs text-emerald-400 font-mono outline-none cursor-not-allowed text-center"
                   />
                   <input
                     type="text"
                     value={`Club: ${clubGross.toLocaleString()} ETB`}
                     readOnly
-                    className="w-1/2 bg-white/[0.02] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-purple-400 font-mono outline-none cursor-not-allowed"
+                    className="w-full bg-white/[0.02] border border-white/[0.08] rounded-xl px-2.5 py-2 text-xs text-purple-400 font-mono outline-none cursor-not-allowed text-center"
+                  />
+                  <input
+                    type="text"
+                    value={`Meals: ${mealGross.toLocaleString()} ETB`}
+                    readOnly
+                    className="w-full bg-white/[0.02] border border-white/[0.08] rounded-xl px-2.5 py-2 text-xs text-amber-400 font-mono outline-none cursor-not-allowed text-center"
                   />
                 </div>
               </div>
@@ -621,7 +725,7 @@ export default function LedgerView() {
                   className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs text-rose-400 font-mono focus:border-rose-500/50 outline-none transition-all"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Deductions split proportionally: {liveProdDeduct.toLocaleString()} Br Products / {liveClubDeduct.toLocaleString()} Br Club
+                  Deductions split proportionally: {liveProdDeduct.toLocaleString()} Br Products / {liveClubDeduct.toLocaleString()} Br Club / {liveMealDeduct.toLocaleString()} Br Meals
                 </p>
               </div>
 
@@ -792,6 +896,7 @@ export default function LedgerView() {
                 <th className="py-3.5 px-5">Type</th>
                 <th className="py-3.5 px-5">Products Gross</th>
                 <th className="py-3.5 px-5">Club Gross</th>
+                <th className="py-3.5 px-5">Meal Gross</th>
                 <th className="py-3.5 px-5">Expenses</th>
                 <th className="py-3.5 px-5">Coach Payout</th>
                 <th className="py-3.5 px-5">Dagmawi Payout</th>
@@ -803,6 +908,7 @@ export default function LedgerView() {
                 const isExpense = log.entry_type === 'expense_only';
                 const prodVal = parseFloat(log.products_gross || (isExpense ? 0 : log.gross_revenue || 0));
                 const clubVal = parseFloat(log.club_gross || 0);
+                const mealVal = parseFloat(log.meal_plan_gross || log.meal_gross || 0);
                 const burnVal = Math.abs(parseFloat(log.operational_deductions || 0));
                 const coach = parseFloat(log.coach_share || 0);
                 const dag = parseFloat(log.dagmawi_share || 0);
@@ -831,6 +937,9 @@ export default function LedgerView() {
                     </td>
                     <td className="py-4 px-5 text-purple-400 font-bold whitespace-nowrap">
                       {isExpense ? '—' : (clubVal > 0 ? `${clubVal.toLocaleString()} Br` : '—')}
+                    </td>
+                    <td className="py-4 px-5 text-amber-400 font-bold whitespace-nowrap">
+                      {isExpense ? '—' : (mealVal > 0 ? `${mealVal.toLocaleString()} Br` : '—')}
                     </td>
                     <td className="py-4 px-5 text-rose-400 whitespace-nowrap">
                       {burnVal > 0 ? `-${burnVal.toLocaleString()} Br` : '0 Br'}

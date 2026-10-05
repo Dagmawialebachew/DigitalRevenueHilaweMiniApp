@@ -53,10 +53,12 @@ export async function generatePayoutPDF(log) {
   const grossTotal = parseFloat(log.gross_revenue || 0);
   const prodGross = parseFloat(log.products_gross || 0);
   const clubGross = parseFloat(log.club_gross || 0);
+  const mealGross = parseFloat(log.meal_plan_gross || log.meal_gross || 0);
   const deductions = parseFloat(log.operational_deductions || 0);
   const netProfit = parseFloat(log.net_profit || 0);
   const coachShare = parseFloat(log.coach_share || 0);
   const dagmawiShare = parseFloat(log.dagmawi_share || 0);
+  const isMealMature = (log.meal_plan_stage === 'mature_35_65' || log.meal_stage === 'mature_35_65');
 
   const tableBody = isExpense
     ? [
@@ -68,8 +70,9 @@ export async function generatePayoutPDF(log) {
       ]
     : [
         ['Settlement Execution Date', payoutDate],
-        ['Stream A: Digital Products (Gross)', `${(prodGross || (grossTotal > 0 ? grossTotal : 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (Split: 70% Coach / 30% Dagmawi)`],
-        ['Stream B: Transformation Club (Gross)', `${clubGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (${log.club_stage === 'mature_65_35' ? 'Stage 2: 65/35' : 'Stage 1: 60/40 Split'})`],
+        ['Stream A: Digital Products (Gross)', `${(prodGross || (grossTotal > 0 && !clubGross && !mealGross ? grossTotal : 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (Split: 70% Coach / 30% Dagmawi)`],
+        ['Stream B: Transformation Club (Gross)', `${clubGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (${log.club_stage === 'mature_65_35' ? 'Stage 2: 65% Coach / 35% Dagmawi' : 'Stage 1: 60% Coach / 40% Dagmawi Split'})`],
+        ['Stream C: Meal Plan Automation (Gross)', `${mealGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (${isMealMature ? 'Stage 2: 65% Coach / 35% Dagmawi' : 'Stage 1: 60% Coach / 40% Dagmawi Split (Until 100k ETB)'})`],
         ['Total Gross Revenue Pool', `${grossTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
         ['Allowable Operational Deductions', `-${deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
         ['Net Distributable Revenue', `${netProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],

@@ -9,6 +9,7 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
   const [revenueFilter, setRevenueFilter] = useState(7);
   const [stats, setStats] = useState({
     club_revenue: 0,
+    meal_revenue: 0,
     total_revenue: 294579,
     active_users: 5332,
     pending_payments: 1,
@@ -66,6 +67,7 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
           labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
           revenue_products: [4200, 7800, 11400, 8900, 14200, 19500, 16800],
           revenue_club: [1200, 1800, 2400, 1900, 3100, 4200, 3900],
+          revenue_meal: [950, 1900, 2850, 1900, 3800, 5700, 4750],
           users: [14, 22, 35, 28, 42, 58, 49],
           days_limit: revenueFilter,
         });
@@ -93,8 +95,9 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
   }, [revenueFilter]);
 
   const clubRevenue = Number(stats.club_revenue || 0);
+  const mealRevenue = Number(stats.meal_revenue || 0);
   const salesRevenue = Number(stats.total_revenue || 294579);
-  const totalRevenueSum = clubRevenue + salesRevenue;
+  const totalRevenueSum = clubRevenue + mealRevenue + salesRevenue;
   const totalSignals =
     Number(distData.pending || 0) +
     Number(distData.approved || 0) +
@@ -109,6 +112,7 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
     const labels = revData.labels || [];
     const prodData = (revData.revenue_products || []).map(Number);
     const clubData = (revData.revenue_club || []).map(Number);
+    const mealData = (revData.revenue_meal || []).map(Number);
     const usersData = (revData.users || []).map(Number);
 
     const gradient = ctx.createLinearGradient(0, 0, 0, 340);
@@ -153,6 +157,21 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
             order: 2,
           },
           {
+            type: 'line',
+            label: 'Meal Plans (ETB)',
+            data: mealData,
+            borderColor: '#10b981',
+            borderWidth: 2,
+            borderDash: [3, 3],
+            tension: 0.38,
+            fill: false,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            yAxisID: 'yRevenue',
+            order: 3,
+          },
+          {
             type: 'bar',
             label: 'New Members',
             data: usersData,
@@ -161,7 +180,7 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
             borderRadius: 6,
             barPercentage: 0.4,
             yAxisID: 'yUsers',
-            order: 3,
+            order: 4,
           },
         ],
       },
@@ -375,15 +394,20 @@ export default function DashboardView({ onSelectProduct, onNavigate }) {
             <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               {totalRevenueSum.toLocaleString()} <span className="text-sm font-semibold text-slate-400">ETB</span>
             </h3>
-            <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-400">
+            <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-400 flex-wrap">
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                Products: {salesRevenue.toLocaleString()} Br
+              </span>
+              <span>•</span>
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                 Club: {clubRevenue.toLocaleString()} Br
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                Products: {salesRevenue.toLocaleString()} Br
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Meals: {mealRevenue.toLocaleString()} Br
               </span>
             </div>
           </div>

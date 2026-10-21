@@ -11,12 +11,13 @@ import PaymentsView from './views/PaymentsView';
 import ProductsView from './views/ProductsView';
 import TestimonialsView from './views/TestimonialsView';
 import LedgerView from './views/LedgerView';
+import MealRadarView from './views/MealRadarView';
 
 export default function App() {
   // Hash-based routing with default to 'dashboard'
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    const validViews = ['dashboard', 'payments', 'products', 'testimonials', 'ledger'];
+    const validViews = ['dashboard', 'meal-radar', 'payments', 'products', 'testimonials', 'ledger'];
     return validViews.includes(hash) ? hash : 'dashboard';
   });
 
@@ -29,7 +30,7 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      const validViews = ['dashboard', 'payments', 'products', 'testimonials', 'ledger'];
+      const validViews = ['dashboard', 'meal-radar', 'payments', 'products', 'testimonials', 'ledger'];
       if (validViews.includes(hash) && hash !== currentView) {
         setCurrentView(hash);
       }
@@ -53,6 +54,8 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+      case 'meal-radar':
+        return <MealRadarView />;
       case 'payments':
         return <PaymentsView onOpenProof={(url) => setProofModalUrl(url)} />;
       case 'products':

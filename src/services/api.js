@@ -122,4 +122,10 @@ export const api = {
     });
     return handleResponse(res);
   },
+
+  // --- Meal Plan Live Radar & Telemetry ---
+  async getMealTelemetry(hours = 24) {
+    const res = await fetch(`${API_BASE}/meal/telemetry?hours=${hours}`);
+    return handleResponse(res);
+  },
 };

@@ -3,6 +3,7 @@ import React from 'react';
 export default function Sidebar({ currentView, setView, pendingCount = 1 }) {
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: 'fa-chart-pie' },
+    { id: 'meal-radar', label: 'Meal Radar', icon: 'fa-satellite-dish' },
     { id: 'payments', label: 'Payments', icon: 'fa-receipt', badge: pendingCount > 0 ? pendingCount : null },
     { id: 'products', label: 'Products', icon: 'fa-cubes' },
     { id: 'testimonials', label: 'Feedback', icon: 'fa-star' },

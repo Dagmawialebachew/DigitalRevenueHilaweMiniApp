@@ -50,7 +50,16 @@ export default function MealRadarView() {
     fetchTelemetry(false);
   }, [fetchTelemetry]);
 
-  const filteredUsers = (data.users || []).filter((u) => {
+  const summary = data?.summary || {};
+  const activeNow = summary.active_now ?? summary.active_online ?? 0;
+  const totalVisitors = summary.total_visitors ?? summary.total_opened ?? 0;
+  const topDropoff = summary.friction_step ?? summary.dropoff_point ?? 'None';
+  const conversionRate = summary.conversion_rate ?? 0;
+
+  const funnelSteps = data?.funnel || data?.funnel_steps || [];
+  const rawUsers = data?.recent_users || data?.users || [];
+
+  const filteredUsers = rawUsers.filter((u) => {
     if (filterMode === 'online') return u.is_online;
     if (filterMode === 'checkout') {
       return (
@@ -135,7 +144,7 @@ export default function MealRadarView() {
           </p>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-extrabold text-white font-mono">
-              {data.summary.active_online}
+              {activeNow}
             </span>
             <span className="text-xs font-medium text-emerald-400 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -153,7 +162,7 @@ export default function MealRadarView() {
           </p>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-extrabold text-white font-mono">
-              {data.summary.total_opened}
+              {totalVisitors}
             </span>
             <span className="text-xs text-slate-400">clients</span>
           </div>
@@ -167,8 +176,8 @@ export default function MealRadarView() {
             Top Friction Point
           </p>
           <div className="flex items-baseline gap-2 mt-2 truncate">
-            <span className="text-lg font-bold text-rose-300 truncate" title={data.summary.dropoff_point}>
-              {data.summary.dropoff_point || 'None Detected'}
+            <span className="text-lg font-bold text-rose-300 truncate" title={topDropoff}>
+              {topDropoff || 'None Detected'}
             </span>
           </div>
           <p className="text-[11px] text-slate-500 mt-2">Highest user abandonment</p>
@@ -182,7 +191,7 @@ export default function MealRadarView() {
           </p>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-extrabold text-amber-400 font-mono">
-              {data.summary.conversion_rate}%
+              {conversionRate}%
             </span>
           </div>
           <p className="text-[11px] text-slate-500 mt-2">End-to-end checkout rate</p>
@@ -202,13 +211,13 @@ export default function MealRadarView() {
             </p>
           </div>
           <span className="text-xs font-mono text-slate-400">
-            {data.funnel_steps?.length || 0} stages tracked
+            {funnelSteps.length} stages tracked
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {(data.funnel_steps || []).map((step, idx) => {
-            const isTopDrop = data.summary.dropoff_point === step.name;
+          {funnelSteps.map((step, idx) => {
+            const isTopDrop = topDropoff === step.name;
             return (
               <div
                 key={step.id || idx}

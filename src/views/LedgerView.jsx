@@ -92,11 +92,20 @@ export default function LedgerView() {
       if (pendingRes.status === 'fulfilled' && pendingRes.value && !pendingRes.value.error) {
         setPendingData((prev) => ({ ...prev, ...pendingRes.value }));
         setDeductionsInput(String(pendingRes.value.pending_deductions || 0));
+      } else {
+        const errMsg = pendingRes.status === 'rejected' ? pendingRes.reason?.message : pendingRes.value?.error;
+        console.warn('Pending payout sync warning:', errMsg);
+        if (pendingRes.status === 'rejected') {
+          toast(`Server Sync Error: ${errMsg || 'Unable to reach backend'}`, 'error');
+        }
       }
 
       if (historyRes.status === 'fulfilled' && Array.isArray(historyRes.value) && historyRes.value.length > 0) {
         setHistory(historyRes.value);
       } else {
+        if (historyRes.status === 'rejected') {
+          console.warn('Payout history sync warning:', historyRes.reason?.message);
+        }
         // High-fidelity fallback based on actual database payout_history rows
         setHistory([
           {

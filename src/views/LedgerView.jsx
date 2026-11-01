@@ -377,9 +377,7 @@ export default function LedgerView() {
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-2.5">
             Partner Revenue & Settlement Controller
           </h2>
-          <p className="text-xs text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
-            Real-time partner allocations. All infrastructure, hosting, and operational expenses are deducted solely from <span className="text-emerald-400 font-medium">Digital Product Sales</span>. Transformation Club and Meal Plan revenues are 100% protected.
-          </p>
+        
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
@@ -427,15 +425,13 @@ export default function LedgerView() {
         <div className="premium-card p-6 border-rose-500/20 bg-gradient-to-br from-rose-500/[0.03] to-transparent">
           <div className="flex items-center justify-between text-xs text-rose-400 font-medium">
             <span>Operating Burn (Deductions)</span>
-            <span className="text-[10px] font-medium text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-              Digital Sales Solely
-            </span>
+           
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight mt-2 font-mono tabular-nums whitespace-nowrap">
             -{enteredDeduction.toLocaleString()} <span className="text-sm font-sans font-normal text-slate-400">ETB</span>
           </h3>
           <p className="text-[11px] text-slate-400 mt-2.5">
-            Servers, database, and infrastructure absorbed 100% by Stream A
+            Servers, database, and infrastructure.
           </p>
         </div>
 
@@ -483,13 +479,10 @@ export default function LedgerView() {
                   <i className="fa-solid fa-dumbbell text-base"></i>
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-white tracking-tight">Stream A: Digital Products</h4>
-                  <p className="text-xs text-slate-400">Workout programs, nutrition plans & digital guides</p>
+                  <h4 className="text-base font-bold text-white tracking-tight">Digital Products</h4>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
-                Fixed 70 / 30 Split
-              </span>
+           
             </div>
 
             {/* Financial Ledger Section */}
@@ -508,7 +501,7 @@ export default function LedgerView() {
                 <div>
                   <p className="text-[11px] font-medium text-rose-400 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-                    Operating Burn (100% Absorbed)
+                    Operating Burn
                   </p>
                   <p className="text-[10px] text-slate-500">Servers, database, USD FX & product costs</p>
                 </div>
@@ -562,13 +555,10 @@ export default function LedgerView() {
                   <i className="fa-solid fa-users text-base"></i>
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-white tracking-tight">Stream B: Transformation Club</h4>
-                  <p className="text-xs text-slate-400">Monthly community subscriptions & renewals</p>
+                  <h4 className="text-base font-bold text-white tracking-tight">Club Community</h4>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30 whitespace-nowrap shrink-0">
-                {isClubMature ? 'Stage 2: 65 / 35' : 'Stage 1: 60 / 40 Split'}
-              </span>
+             
             </div>
 
             {/* Financial Ledger Section */}
@@ -651,13 +641,10 @@ export default function LedgerView() {
                   <i className="fa-solid fa-bowl-food text-base"></i>
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-white tracking-tight">Stream C: Meal Plan System</h4>
-                  <p className="text-xs text-slate-400">Personalized nutrition, fasting protocols & PDFs</p>
+                  <h4 className="text-base font-bold text-white tracking-tight">Stream C: Meal Plan</h4>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0">
-                {isMealMature ? 'Stage 2: 35% Dag / 65% Coach' : 'Stage 1: 40% Dag / 60% Coach'}
-              </span>
+             
             </div>
 
             {/* Financial Ledger Section */}

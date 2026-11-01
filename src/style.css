@@ -2227,26 +2227,7 @@ body {
   transition-timing-function: cubic-bezier(0.23,1,0.32,1);
 }
 
-/* Sci-fi Scanline Overlay */
-
-.scanline-overlay::before {
-  content: " ";
-  pointer-events: none;
-  position: fixed;
-  inset: 0px;
-  z-index: 100;
-  opacity: 0.03;
-}
-
-.lg\:col-span-2 .absolute.scanline-overlay::before {
-  pointer-events: none;
-}
-
-.scanline-overlay::before {
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 100, 0.02));
-  background-size: 100% 4px, 3px 100%;
-}
+/* Scanline overlay purged */
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;

@@ -71,18 +71,15 @@ export async function generatePayoutPDF(log) {
         ['Recorded Date', payoutDate],
         ['Expense Category', log.production_deductions > 0 ? 'Product & Video Production' : 'Servers, Database & Infrastructure'],
         ['Deduction Amount', `-${deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
-        ['Allocation', 'Deducted 100% from Digital Product Sales (Stream A)'],
         ['Memo / Description', log.expense_note || 'Platform operating expense'],
       ]
     : [
         ['Settlement Date', payoutDate],
         ['Stream A: Digital Products (Gross)', `${effectiveProdGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
-        ['Stream A: Operating Deductions', deductions > 0 ? `-${deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (100% allocated to Stream A)` : '0.00 ETB'],
-        ['Stream A: Net Distributable', `${prodNet.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (Split: 70% Coach / 30% Tech)`],
-        ['Stream B: Transformation Club (Gross)', `${clubGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (Zero Burn - 100% Protected, ${log.club_stage === 'mature_65_35' ? '65/35' : '60/40'})`],
-        ['Stream C: Meal Plan Automation (Gross)', `${mealGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB (Zero Burn - 100% Protected, ${isMealMature ? '65/35' : '60/40'})`],
+        ['Stream B: Transformation Club (Gross)', `${clubGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
+        ['Stream C: Meal Plan Automation (Gross)', `${mealGross.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
         ['Total Gross Revenue Pool', `${grossTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
-        ['Total Operating Deductions', `-${deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
+        ['Allowable Operational Deductions', deductions > 0 ? `-${deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB` : '0.00 ETB'],
         ['Net Distributable Revenue', `${netProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
         ['Coach Hilawe Semma Entitlement', `${coachShare.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
         ['Dagmawi Tewodros Entitlement', `${dagmawiShare.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB`],
@@ -114,7 +111,7 @@ export async function generatePayoutPDF(log) {
   doc.text('OFFICIAL MEMO & TRANSACTION REFERENCE:', 20, currentY + 7);
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(8.5);
-  doc.text(log.expense_note || 'Standard dual-stream partnership payout reconciliation.', 20, currentY + 14);
+  doc.text(log.expense_note || 'Standard partnership revenue settlement and payout reconciliation.', 20, currentY + 14);
 
   currentY += 34;
 
@@ -128,7 +125,7 @@ export async function generatePayoutPDF(log) {
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
   doc.text(
-    'This statement certifies the exact profit distribution across all three active revenue streams. Operational expenses are deducted strictly from Digital Product Sales; Transformation Club and Meal Plan earnings are 100% protected with zero burn rate.',
+    'This statement certifies the official revenue distribution across active partnership streams. All figures are audited directly against verifiable transaction ledgers, platform records, and confirmed partner accounts.',
     15,
     currentY + 6,
     { maxWidth: 180 }
